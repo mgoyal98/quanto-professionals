@@ -10,9 +10,12 @@ if (started) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    minWidth: 1024,
+    minHeight: 720,
+    show: false,
     webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
@@ -25,6 +28,11 @@ const createWindow = () => {
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
     );
   }
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.maximize(); // makes it full window size (not fullscreen)
+    mainWindow.show();
+  });
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
