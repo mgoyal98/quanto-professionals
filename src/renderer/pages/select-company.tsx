@@ -1,4 +1,5 @@
 import { Routes } from '@/common/routes';
+import { useCompany } from '@/providers/company';
 import { Add, FileUploadOutlined, History } from '@mui/icons-material';
 import {
   Avatar,
@@ -19,6 +20,8 @@ export default function SelectCompany() {
   const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]);
 
   const navigate = useNavigate();
+
+  const { getCompany } = useCompany();
 
   const handleNewCompany = () => {
     navigate(Routes.NewCompany);
@@ -41,6 +44,20 @@ export default function SelectCompany() {
     void loadRecentCompanies();
   }, []);
 
+  const openCompany = async (filePath: string) => {
+    if (!window.companyApi) {
+      return;
+    }
+
+    try {
+      await window.companyApi.openCompany(filePath);
+      await getCompany();
+      loadRecentCompanies();
+    } catch (err) {
+      console.error('Failed to open company:', err);
+    }
+  };
+
   const handleExistingCompany = async () => {
     if (!window.companyApi) {
       return;
@@ -51,7 +68,7 @@ export default function SelectCompany() {
       if (!filePath) {
         return;
       }
-      console.log(filePath);
+      await openCompany(filePath);
     } catch (err) {
       console.error('Failed to choose company file:', err);
     }
@@ -107,7 +124,7 @@ export default function SelectCompany() {
           {recentCompanies.map((company) => (
             <ListItemButton
               key={company.filePath}
-              onClick={() => console.log(company.filePath)}
+              onClick={() => openCompany(company.filePath)}
             >
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: 'secondary.light' }}>

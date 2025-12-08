@@ -73,20 +73,21 @@ async function createCompany(company: CreateCompanyRequest) {
 }
 
 function openCompany(filePath: string) {
+  if (activeDb) {
+    activeDb.$client.close();
+    activeDb = null;
+  }
   const db = openDatabase(filePath, { fileMustExist: true });
   if (!fs.existsSync(filePath)) {
     throw new Error('Company database not found.');
   }
   activeDb = db;
-  return activeDb;
 }
 
-async function getCompanyDetais() {
-  if (!activeDb) {
-    throw new Error('No active company');
-  }
-  const company = await activeDb.select().from(companiesTable).limit(1);
-  return company[0];
+async function getCompanyDetails() {
+  const db = getActiveDb();
+  const company = db.select().from(companiesTable).limit(1).get();
+  return company;
 }
 
 function getActiveDb() {
@@ -171,6 +172,13 @@ export function registerCompanyHandlers() {
       }
     }
   );
+  ipcMain.handle(CompanyIpcChannel.Open, async (_event, filePath: string) => {
+    try {
+      return openCompany(filePath);
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
   ipcMain.handle(CompanyIpcChannel.GetRecent, async () => {
     try {
       return loadRecentCompanies();
@@ -181,6 +189,13 @@ export function registerCompanyHandlers() {
   ipcMain.handle(CompanyIpcChannel.ChooseFile, async () => {
     try {
       return await chooseCompanyFile();
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
+  ipcMain.handle(CompanyIpcChannel.GetCompanyDetails, async () => {
+    try {
+      return getCompanyDetails();
     } catch (error) {
       throw new Error(formatIpcError(error));
     }
