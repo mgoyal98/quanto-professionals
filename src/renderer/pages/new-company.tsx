@@ -1,6 +1,7 @@
 import { companyFormSchema, CompanyFormValues } from '@/common/company';
 import { Routes } from '@/common/routes';
 import {
+  Alert,
   Autocomplete,
   Box,
   Button,
@@ -9,13 +10,16 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { stateOptions } from '@shared/states';
+import { getStateByCode, stateOptions } from '@shared/states';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 
 export default function NewCompany() {
   const navigate = useNavigate();
+
+  const [error, setError] = useState<string | null>(null);
 
   const handleBack = () => navigate(Routes.SelectCompany);
 
@@ -24,6 +28,7 @@ export default function NewCompany() {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<CompanyFormValues>({
     resolver: zodResolver(companyFormSchema),
     defaultValues: {
@@ -41,8 +46,31 @@ export default function NewCompany() {
     },
   });
 
-  const onSubmit = (data: CompanyFormValues) => {
-    console.log(data);
+  const onSubmit = async (data: CompanyFormValues) => {
+    if (!window.companyApi) {
+      setError('Company API is not available.');
+      return;
+    }
+
+    try {
+      setError(null);
+
+      const state = getStateByCode(data.stateCode);
+      const companyFilePath = await window.companyApi.createCompany({
+        ...data,
+        state: state.name,
+      });
+
+      reset();
+
+      console.log(companyFilePath);
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : 'Unable to create company.'
+      );
+    }
   };
 
   return (
@@ -54,6 +82,11 @@ export default function NewCompany() {
         </Typography>
       </Box>
       <Divider />
+      {error ? (
+        <Box p={2}>
+          <Alert severity='error'>{error}</Alert>
+        </Box>
+      ) : null}
       <Box
         component='form'
         onSubmit={handleSubmit(onSubmit)}

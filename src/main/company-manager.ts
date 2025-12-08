@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, dialog, ipcMain } from 'electron';
 import path from 'node:path';
 import fs from 'fs-extra';
 import { config } from '@shared/config';
@@ -8,12 +8,13 @@ import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { slugify } from '@shared/utils';
 import { companiesTable } from '@db/schema';
+import { CompanyIpcChannel, formatIpcError } from '@shared/ipc';
 
 let activeDb: BetterSQLite3Database<Record<string, never>> & {
   $client: Database.Database;
 };
 
-export function getDataDirectory() {
+function getDataDirectory() {
   let root: string;
   try {
     root = app.getPath('documents');
@@ -43,9 +44,9 @@ function openDatabase(filePath: string, options?: { fileMustExist?: boolean }) {
   }
 }
 
-export async function createCompany(company: CreateCompanyRequest) {
+async function createCompany(company: CreateCompanyRequest) {
   const dbFileName = slugify(company.name);
-  const filePath = path.join(getDataDirectory(), `${dbFileName}.db`);
+  const filePath = path.join(getDataDirectory(), `${dbFileName}.quanto.db`);
   if (fs.existsSync(filePath)) {
     throw new Error('A company database with this name already exists.');
   }
@@ -71,7 +72,7 @@ export async function createCompany(company: CreateCompanyRequest) {
   }
 }
 
-export function openCompany(filePath: string) {
+function openCompany(filePath: string) {
   const db = openDatabase(filePath, { fileMustExist: true });
   if (!fs.existsSync(filePath)) {
     throw new Error('Company database not found.');
@@ -80,7 +81,15 @@ export function openCompany(filePath: string) {
   return activeDb;
 }
 
-export function getActiveDb() {
+async function getCompanyDetais() {
+  if (!activeDb) {
+    throw new Error('No active company');
+  }
+  const company = await activeDb.select().from(companiesTable).limit(1);
+  return company[0];
+}
+
+function getActiveDb() {
   if (!activeDb) {
     throw new Error('No active company database.');
   }
@@ -95,11 +104,11 @@ export function closeActiveDb() {
   activeDb = null;
 }
 
-const getRecentCompaniesFile = () => {
+function getRecentCompaniesFile() {
   return path.join(getDataDirectory(), 'recent-companies.json');
-};
+}
 
-export function loadRecentCompanies(): RecentCompany[] {
+function loadRecentCompanies(): RecentCompany[] {
   const filePath = getRecentCompaniesFile();
   if (!fs.existsSync(filePath)) {
     return [];
@@ -132,4 +141,48 @@ function addToRecentCompanies(company: RecentCompany) {
   const trimmed = filtered.slice(0, config.company.maxRecent);
 
   fs.writeJsonSync(getRecentCompaniesFile(), trimmed);
+}
+
+async function chooseCompanyFile() {
+  const result = await dialog.showOpenDialog({
+    defaultPath: getDataDirectory(),
+    properties: ['openFile'],
+    filters: [
+      { name: 'Quanto Company', extensions: ['quanto.db'] },
+      { name: 'All Files', extensions: ['*'] },
+    ],
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+
+  return result.filePaths[0];
+}
+
+export function registerCompanyHandlers() {
+  ipcMain.handle(
+    CompanyIpcChannel.Create,
+    async (_event, data: CreateCompanyRequest) => {
+      try {
+        return createCompany(data);
+      } catch (error) {
+        throw new Error(formatIpcError(error));
+      }
+    }
+  );
+  ipcMain.handle(CompanyIpcChannel.GetRecent, async () => {
+    try {
+      return loadRecentCompanies();
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
+  ipcMain.handle(CompanyIpcChannel.ChooseFile, async () => {
+    try {
+      return await chooseCompanyFile();
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
 }

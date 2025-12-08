@@ -1,3 +1,6 @@
+import { companiesTable } from '@db/schema';
+import { InferSelectModel } from 'drizzle-orm';
+
 export interface RecentCompany {
   filePath: string;
   name: string;
@@ -18,3 +21,5 @@ export interface CreateCompanyRequest {
   phone?: string;
   email?: string;
 }
+
+export type Company = InferSelectModel<typeof companiesTable>;
