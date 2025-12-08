@@ -6,6 +6,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, 'src/shared'),
+      '@db': path.resolve(__dirname, 'src/db'),
     },
   },
   build: {

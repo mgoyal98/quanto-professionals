@@ -15,6 +15,7 @@ export default defineConfig(async () => {
         // This matches your tsconfig.json setup: "@/*": ["./src/renderer/*"]
         '@': path.resolve(__dirname, 'src/renderer'),
         '@shared': path.resolve(__dirname, 'src/shared'),
+        '@db': path.resolve(__dirname, 'src/db'),
       },
     },
   };

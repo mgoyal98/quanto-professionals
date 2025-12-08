@@ -15,10 +15,10 @@ export const companiesTable = sqliteTable('companies', {
   stateCode: text().notNull(),
   phone: text(),
   email: text(),
-  createdAt: integer()
+  createdAt: integer({ mode: 'timestamp' })
     .notNull()
     .default(sql`(unixepoch())`), // seconds since epoch
-  updatedAt: integer()
+  updatedAt: integer({ mode: 'timestamp' })
     .notNull()
     .default(sql`(unixepoch())`), // default only for initial insert
 });

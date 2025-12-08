@@ -15,7 +15,8 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "paths": {
       "@/*": ["./src/renderer/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@db/*": ["./src/db/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
