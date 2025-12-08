@@ -1,3 +1,4 @@
+import { Routes } from '@/common/routes';
 import { Add, FileUploadOutlined } from '@mui/icons-material';
 import {
   Avatar,
@@ -14,6 +15,10 @@ import { useNavigate } from 'react-router';
 export default function SelectCompany() {
   const navigate = useNavigate();
 
+  const handleNewCompany = () => {
+    navigate(Routes.NewCompany);
+  };
+
   return (
     <>
       <Box sx={{ p: 3 }}>
@@ -24,7 +29,7 @@ export default function SelectCompany() {
       </Box>
       <Divider />
       <List sx={{ p: 0 }} aria-labelledby='create-or-select-company'>
-        <ListItemButton>
+        <ListItemButton onClick={handleNewCompany}>
           <ListItemAvatar>
             <Avatar sx={{ bgcolor: 'primary.light' }}>
               <Add color='primary' />
