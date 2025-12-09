@@ -53,6 +53,7 @@ export default function SelectCompany() {
       await window.companyApi.openCompany(filePath);
       await getCompany();
       loadRecentCompanies();
+      navigate(Routes.Dashboard);
     } catch (err) {
       console.error('Failed to open company:', err);
     }

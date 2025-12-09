@@ -72,7 +72,7 @@ async function createCompany(company: CreateCompanyRequest) {
   }
 }
 
-function openCompany(filePath: string) {
+async function openCompany(filePath: string) {
   if (activeDb) {
     activeDb.$client.close();
     activeDb = null;
@@ -82,6 +82,15 @@ function openCompany(filePath: string) {
     throw new Error('Company database not found.');
   }
   activeDb = db;
+  const company = await getCompanyDetails();
+  if (company) {
+    addToRecentCompanies({
+      name: company.name,
+      filePath: filePath,
+      lastOpened: new Date().toISOString(),
+    });
+  }
+  return company;
 }
 
 async function getCompanyDetails() {
@@ -128,7 +137,7 @@ function addToRecentCompanies(company: RecentCompany) {
 
   // Remove if already exists
   const filtered = recent.filter(
-    (company) => company.filePath !== company.filePath
+    (recentCompany) => recentCompany.filePath !== company.filePath
   );
 
   // Add to beginning
@@ -175,6 +184,13 @@ export function registerCompanyHandlers() {
   ipcMain.handle(CompanyIpcChannel.Open, async (_event, filePath: string) => {
     try {
       return openCompany(filePath);
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
+  ipcMain.handle(CompanyIpcChannel.Close, async () => {
+    try {
+      return closeActiveDb();
     } catch (error) {
       throw new Error(formatIpcError(error));
     }

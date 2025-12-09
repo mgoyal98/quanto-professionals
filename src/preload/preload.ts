@@ -13,6 +13,8 @@ const companyApi = {
     ipcRenderer.invoke(CompanyIpcChannel.ChooseFile) as Promise<string | null>,
   getCompanyDetails: () =>
     ipcRenderer.invoke(CompanyIpcChannel.GetCompanyDetails) as Promise<Company>,
+  closeCompany: () =>
+    ipcRenderer.invoke(CompanyIpcChannel.Close) as Promise<void>,
 };
 
 contextBridge.exposeInMainWorld('companyApi', companyApi);

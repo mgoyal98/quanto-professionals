@@ -15,9 +15,12 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
+import { useCompany } from '@/providers/company';
 
 export default function NewCompany() {
   const navigate = useNavigate();
+
+  const { getCompany } = useCompany();
 
   const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +49,20 @@ export default function NewCompany() {
     },
   });
 
+  const openCompany = async (filePath: string) => {
+    if (!window.companyApi) {
+      return;
+    }
+
+    try {
+      await window.companyApi.openCompany(filePath);
+      await getCompany();
+      navigate(Routes.Dashboard);
+    } catch (err) {
+      console.error('Failed to open company:', err);
+    }
+  };
+
   const onSubmit = async (data: CompanyFormValues) => {
     if (!window.companyApi) {
       setError('Company API is not available.');
@@ -63,7 +80,7 @@ export default function NewCompany() {
 
       reset();
 
-      console.log(companyFilePath);
+      await openCompany(companyFilePath);
     } catch (submissionError) {
       setError(
         submissionError instanceof Error

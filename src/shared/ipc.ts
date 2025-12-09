@@ -4,6 +4,7 @@ export enum CompanyIpcChannel {
   GetCompanyDetails = 'company:get-company-details',
   ChooseFile = 'company:choose-file',
   GetRecent = 'company:get-recent',
+  Close = 'company:close',
 }
 
 export function formatIpcError(error: unknown) {

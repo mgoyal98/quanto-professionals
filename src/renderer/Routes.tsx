@@ -3,6 +3,8 @@ import { Route, Routes } from 'react-router';
 import CompanyLayout from './layouts/company';
 import SelectCompany from './pages/select-company';
 import NewCompany from './pages/new-company';
+import MainLayout from './layouts/main';
+import Dashboard from './pages/dashboard';
 
 export default function AppRoutes() {
   return (
@@ -11,6 +13,10 @@ export default function AppRoutes() {
       <Route path='/' element={<CompanyLayout />}>
         <Route index element={<SelectCompany />} />
         <Route path='new-company' element={<NewCompany />} />
+      </Route>
+
+      <Route path='/' element={<MainLayout />}>
+        <Route path='dashboard' element={<Dashboard />} />
       </Route>
     </Routes>
   );

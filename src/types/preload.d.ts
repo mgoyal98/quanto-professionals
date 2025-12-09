@@ -12,6 +12,7 @@ declare global {
       getRecentCompanies(): Promise<RecentCompany[]>;
       chooseCompanyFile(): Promise<string | null>;
       getCompanyDetails(): Promise<Company>;
+      closeCompany(): Promise<void>;
     };
   }
 }
