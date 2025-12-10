@@ -1,0 +1,72 @@
+import { customersTable } from '@db/schema/customers';
+import { CreateCustomerRequest } from '@shared/customer';
+import { getActiveDb } from './company-manager';
+import { dialog, ipcMain } from 'electron';
+import { CustomerIpcChannel, formatIpcError } from '@shared/ipc';
+import { asc, eq } from 'drizzle-orm';
+
+function createCustomer(customer: CreateCustomerRequest) {
+  const db = getActiveDb();
+  const result = db.insert(customersTable).values(customer).returning();
+  return result;
+}
+
+function listCustomers() {
+  const db = getActiveDb();
+  const result = db
+    .select()
+    .from(customersTable)
+    .where(eq(customersTable.isArchived, false))
+    .orderBy(asc(customersTable.name))
+    .all();
+  return result;
+}
+
+function deleteCustomer(id: number) {
+  const db = getActiveDb();
+  const result = db
+    .update(customersTable)
+    .set({ isArchived: true })
+    .where(eq(customersTable.id, id))
+    .returning();
+  return result;
+}
+
+export function registerCustomerHandlers() {
+  ipcMain.handle(
+    CustomerIpcChannel.Create,
+    async (_event, data: CreateCustomerRequest) => {
+      try {
+        return createCustomer(data);
+      } catch (error) {
+        throw new Error(formatIpcError(error));
+      }
+    }
+  );
+  ipcMain.handle(CustomerIpcChannel.List, async (_event) => {
+    try {
+      return listCustomers();
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
+  ipcMain.handle(
+    CustomerIpcChannel.Delete,
+    async (_event, id: number, name: string) => {
+      try {
+        const result = await dialog.showMessageBox({
+          type: 'warning',
+          message: `Are you sure you want to delete this customer (${name})?`,
+          buttons: ['Yes', 'No'],
+        });
+        if (result.response === 0) {
+          await deleteCustomer(id);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        throw new Error(formatIpcError(error));
+      }
+    }
+  );
+}

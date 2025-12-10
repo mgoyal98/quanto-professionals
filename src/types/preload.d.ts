@@ -3,6 +3,7 @@ import type {
   CreateCompanyRequest,
   RecentCompany,
 } from '@shared/company';
+import { CreateCustomerRequest, Customer } from '@shared/customer';
 
 declare global {
   interface Window {
@@ -13,6 +14,11 @@ declare global {
       chooseCompanyFile(): Promise<string | null>;
       getCompanyDetails(): Promise<Company>;
       closeCompany(): Promise<void>;
+    };
+    customerApi?: {
+      createCustomer(payload: CreateCustomerRequest): Promise<Customer>;
+      listCustomers(): Promise<Customer[]>;
+      deleteCustomer(id: number, name: string): Promise<boolean>;
     };
   }
 }

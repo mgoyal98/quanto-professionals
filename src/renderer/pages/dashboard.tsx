@@ -26,6 +26,7 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useCompany } from '@/providers/company';
+import { Routes } from '@/common/routes';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ export default function Dashboard() {
     {
       title: 'New Client',
       icon: <People />,
-      path: '/clients/new',
+      path: Routes.NewCustomer,
       color: '#2e7d32',
     },
     {

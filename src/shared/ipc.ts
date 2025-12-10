@@ -7,6 +7,12 @@ export enum CompanyIpcChannel {
   Close = 'company:close',
 }
 
+export enum CustomerIpcChannel {
+  Create = 'customer:create',
+  List = 'customer:list',
+  Delete = 'customer:delete',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;

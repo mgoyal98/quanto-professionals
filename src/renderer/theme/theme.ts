@@ -104,6 +104,16 @@ const themeOptions: ThemeOptions = {
         root: {
           fontWeight: 500,
           borderRadius: 8,
+          minWidth: 150,
+        },
+      },
+    },
+    MuiAutocomplete: {
+      defaultProps: {
+        slotProps: {
+          paper: {
+            elevation: 2,
+          },
         },
       },
     },

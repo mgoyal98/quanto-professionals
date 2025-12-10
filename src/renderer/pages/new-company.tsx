@@ -229,10 +229,22 @@ export default function NewCompany() {
               />
             </Grid>
             <Grid size={6}>
-              <TextField label='Phone' fullWidth />
+              <TextField
+                label='Phone'
+                {...register('phone')}
+                error={Boolean(errors.phone)}
+                helperText={errors.phone?.message}
+                fullWidth
+              />
             </Grid>
             <Grid size={6}>
-              <TextField label='Email' fullWidth />
+              <TextField
+                label='Email'
+                {...register('email')}
+                error={Boolean(errors.email)}
+                helperText={errors.email?.message}
+                fullWidth
+              />
             </Grid>
           </Grid>
         </Box>

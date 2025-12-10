@@ -20,6 +20,7 @@ import {
   Inventory2,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router';
+import { Routes } from '@/common/routes';
 
 const drawerWidth = 240;
 
@@ -33,9 +34,9 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
+    { text: 'Dashboard', icon: <Dashboard />, path: Routes.Dashboard },
     { text: 'Invoices', icon: <Receipt />, path: '/invoices' },
-    { text: 'Clients', icon: <People />, path: '/clients' },
+    { text: 'Customers', icon: <People />, path: Routes.Customers },
     { text: 'Items', icon: <Inventory2 />, path: '/items' },
     { text: 'Reports', icon: <Assessment />, path: '/reports/general' },
     { text: 'Formats', icon: <FormatPaint />, path: '/formats' },

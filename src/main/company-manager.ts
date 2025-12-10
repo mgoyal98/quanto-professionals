@@ -58,7 +58,7 @@ async function createCompany(company: CreateCompanyRequest) {
   };
 
   try {
-    await db.insert(companiesTable).values(dbCompany);
+    await db.insert(companiesTable).values(dbCompany).returning();
 
     addToRecentCompanies({
       name: company.name,
@@ -99,7 +99,7 @@ async function getCompanyDetails() {
   return company;
 }
 
-function getActiveDb() {
+export function getActiveDb() {
   if (!activeDb) {
     throw new Error('No active company database.');
   }

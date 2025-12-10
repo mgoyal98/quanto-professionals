@@ -1,5 +1,6 @@
 import { Company, CreateCompanyRequest, RecentCompany } from '@shared/company';
-import { CompanyIpcChannel } from '@shared/ipc';
+import { CreateCustomerRequest, Customer } from '@shared/customer';
+import { CompanyIpcChannel, CustomerIpcChannel } from '@shared/ipc';
 import { contextBridge, ipcRenderer } from 'electron';
 
 const companyApi = {
@@ -17,4 +18,14 @@ const companyApi = {
     ipcRenderer.invoke(CompanyIpcChannel.Close) as Promise<void>,
 };
 
+const customerApi = {
+  createCustomer: (payload: CreateCustomerRequest) =>
+    ipcRenderer.invoke(CustomerIpcChannel.Create, payload) as Promise<Customer>,
+  listCustomers: () =>
+    ipcRenderer.invoke(CustomerIpcChannel.List) as Promise<Customer[]>,
+  deleteCustomer: (id: number, name: string) =>
+    ipcRenderer.invoke(CustomerIpcChannel.Delete, id, name) as Promise<boolean>,
+};
+
 contextBridge.exposeInMainWorld('companyApi', companyApi);
+contextBridge.exposeInMainWorld('customerApi', customerApi);
