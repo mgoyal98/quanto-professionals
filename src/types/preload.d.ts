@@ -3,7 +3,11 @@ import type {
   CreateCompanyRequest,
   RecentCompany,
 } from '@shared/company';
-import { CreateCustomerRequest, Customer } from '@shared/customer';
+import {
+  CreateCustomerRequest,
+  Customer,
+  UpdateCustomerRequest,
+} from '@shared/customer';
 
 declare global {
   interface Window {
@@ -17,6 +21,8 @@ declare global {
     };
     customerApi?: {
       createCustomer(payload: CreateCustomerRequest): Promise<Customer>;
+      getCustomer(id: number): Promise<Customer | undefined>;
+      updateCustomer(payload: UpdateCustomerRequest): Promise<Customer>;
       listCustomers(): Promise<Customer[]>;
       listArchivedCustomers(): Promise<Customer[]>;
       archiveCustomer(id: number, name: string): Promise<boolean>;

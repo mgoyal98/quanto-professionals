@@ -21,8 +21,8 @@ import {
 } from '@mui/material';
 import { Add, Archive, Edit, Restore, Search } from '@mui/icons-material';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
-import NewCustomer from './new-customer';
+import { useSearchParams } from 'react-router';
+import CustomerForm from './customer-form';
 import { Customer } from '@shared/customer';
 import { formatIpcError } from '@shared/ipc';
 import { usePagination } from '@/hooks/usePagination';
@@ -30,8 +30,13 @@ import { useNotification } from '@/providers/notification';
 
 type CustomerTab = 'active' | 'archived';
 
+type CustomerModalState = {
+  open: boolean;
+  mode: 'create' | 'edit';
+  customerId?: number;
+};
+
 export default function CustomerList() {
-  const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
   const [activeTab, setActiveTab] = useState<CustomerTab>('active');
@@ -40,7 +45,12 @@ export default function CustomerList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [openNewCustomerModal, setOpenNewCustomerModal] = useState(false);
+
+  // Single state object for modal
+  const [customerModal, setCustomerModal] = useState<CustomerModalState>({
+    open: false,
+    mode: 'create',
+  });
 
   const [searchParams] = useSearchParams();
   const isAddNewCustomer = searchParams.get('newCustomer') === 'true';
@@ -72,14 +82,30 @@ export default function CustomerList() {
 
   useEffect(() => {
     if (isAddNewCustomer) {
-      setOpenNewCustomerModal(true);
+      handleOpenCreateModal();
       searchParams.delete('newCustomer');
     }
   }, [isAddNewCustomer, searchParams]);
 
-  const handleNewCustomerSuccess = () => {
+  // Handler for opening create modal
+  const handleOpenCreateModal = () => {
+    setCustomerModal({ open: true, mode: 'create' });
+  };
+
+  // Handler for opening edit modal
+  const handleOpenEditModal = (customerId: number) => {
+    setCustomerModal({ open: true, mode: 'edit', customerId });
+  };
+
+  // Handler for closing modal
+  const handleCloseModal = () => {
+    setCustomerModal({ open: false, mode: 'create', customerId: undefined });
+  };
+
+  // Handler for success (both create and edit)
+  const handleSuccess = () => {
     void loadCustomers();
-    setOpenNewCustomerModal(false);
+    handleCloseModal();
   };
 
   const handleArchive = async (id: number, name: string) => {
@@ -192,7 +218,7 @@ export default function CustomerList() {
           <Button
             variant='contained'
             startIcon={<Add />}
-            onClick={() => setOpenNewCustomerModal(true)}
+            onClick={handleOpenCreateModal}
           >
             Create Customer
           </Button>
@@ -277,7 +303,9 @@ export default function CustomerList() {
                                 <>
                                   <IconButton
                                     size='small'
-                                    onClick={() => navigate(`/`)}
+                                    onClick={() =>
+                                      handleOpenEditModal(customer.id)
+                                    }
                                     color='primary'
                                   >
                                     <Edit />
@@ -326,10 +354,12 @@ export default function CustomerList() {
         </Card>
       </Stack>
 
-      <NewCustomer
-        open={openNewCustomerModal}
-        onClose={() => setOpenNewCustomerModal(false)}
-        onSuccess={handleNewCustomerSuccess}
+      <CustomerForm
+        open={customerModal.open}
+        mode={customerModal.mode}
+        customerId={customerModal.customerId}
+        onClose={handleCloseModal}
+        onSuccess={handleSuccess}
       />
     </Box>
   );

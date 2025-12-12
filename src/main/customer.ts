@@ -1,5 +1,5 @@
 import { customersTable } from '@db/schema/customers';
-import { CreateCustomerRequest } from '@shared/customer';
+import { CreateCustomerRequest, UpdateCustomerRequest } from '@shared/customer';
 import { getActiveDb } from './company-manager';
 import { dialog, ipcMain } from 'electron';
 import { CustomerIpcChannel, formatIpcError } from '@shared/ipc';
@@ -8,6 +8,29 @@ import { asc, eq } from 'drizzle-orm';
 function createCustomer(customer: CreateCustomerRequest) {
   const db = getActiveDb();
   const result = db.insert(customersTable).values(customer).returning();
+  return result;
+}
+
+function getCustomer(id: number) {
+  const db = getActiveDb();
+  const result = db
+    .select()
+    .from(customersTable)
+    .where(eq(customersTable.id, id))
+    .get();
+  return result;
+}
+
+function updateCustomer(id: number, data: Omit<UpdateCustomerRequest, 'id'>) {
+  const db = getActiveDb();
+  const result = db
+    .update(customersTable)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(customersTable.id, id))
+    .returning();
   return result;
 }
 
@@ -59,6 +82,24 @@ export function registerCustomerHandlers() {
     async (_event, data: CreateCustomerRequest) => {
       try {
         return createCustomer(data);
+      } catch (error) {
+        throw new Error(formatIpcError(error));
+      }
+    }
+  );
+  ipcMain.handle(CustomerIpcChannel.Get, async (_event, id: number) => {
+    try {
+      return getCustomer(id);
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
+  ipcMain.handle(
+    CustomerIpcChannel.Update,
+    async (_event, data: UpdateCustomerRequest) => {
+      try {
+        const { id, ...updateData } = data;
+        return updateCustomer(id, updateData);
       } catch (error) {
         throw new Error(formatIpcError(error));
       }

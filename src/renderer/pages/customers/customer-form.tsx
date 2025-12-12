@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,7 +9,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
 import Box from '@mui/material/Box';
-import { Button, Grid, Stack, TextField } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { customerFormSchema, CustomerFormValues } from '@/common/customer';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,18 +33,40 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction='up' ref={ref} {...props} />;
 });
 
-interface NewCustomerProps {
+type CustomerFormMode = 'create' | 'edit';
+
+interface CustomerFormProps {
   open: boolean;
+  mode: CustomerFormMode;
+  customerId?: number;
   onClose: () => void;
   onSuccess: (customer: Customer) => void;
 }
 
-export default function NewCustomer({
+const defaultValues: CustomerFormValues = {
+  name: '',
+  pan: '',
+  gstin: '',
+  addressLine1: '',
+  addressLine2: '',
+  city: '',
+  pinCode: '',
+  stateCode: '',
+  phone: '',
+  email: '',
+};
+
+export default function CustomerForm({
   open,
+  mode,
+  customerId,
   onClose,
   onSuccess,
-}: NewCustomerProps) {
+}: CustomerFormProps) {
   const { showSuccess, showError } = useNotification();
+  const [loading, setLoading] = useState(false);
+
+  const isEditMode = mode === 'edit';
 
   const {
     register,
@@ -47,39 +76,111 @@ export default function NewCustomer({
     reset,
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerFormSchema),
-    defaultValues: {
-      name: '',
-      pan: '',
-      gstin: '',
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      pinCode: '',
-      stateCode: '',
-      phone: '',
-      email: '',
-    },
+    defaultValues: defaultValues,
   });
 
-  const handleNewCustomer = async (data: CustomerFormValues) => {
+  // Fetch customer data when editing
+  useEffect(() => {
+    if (!open || !isEditMode || !customerId) {
+      reset(defaultValues); // Reset to default values for new customer
+      return;
+    }
+
+    if (!window.customerApi) {
+      return;
+    }
+
+    setLoading(true);
+
+    const loadCustomerAndUpdateForm = async () => {
+      try {
+        const customer = await window.customerApi.getCustomer(customerId);
+        if (customer) {
+          reset({
+            name: customer.name,
+            pan: customer.pan || '',
+            gstin: customer.gstin || '',
+            addressLine1: customer.addressLine1 || '',
+            addressLine2: customer.addressLine2 || '',
+            city: customer.city,
+            pinCode: customer.pinCode || '',
+            stateCode: customer.stateCode,
+            phone: customer.phone || '',
+            email: customer.email || '',
+          });
+        }
+      } catch (error) {
+        showError(
+          error instanceof Error ? error.message : 'Failed to load customer'
+        );
+        onClose();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadCustomerAndUpdateForm();
+  }, [open, isEditMode, customerId, reset, showError, onClose]);
+
+  const handleFormSubmit = async (data: CustomerFormValues) => {
     if (!window.customerApi) {
       return;
     }
 
     try {
       const state = getStateByCode(data.stateCode);
-      const customer = await window.customerApi.createCustomer({
-        ...data,
-        state: state.name,
-      });
-      showSuccess('Customer created successfully');
-      onSuccess(customer);
+
+      if (isEditMode && customerId) {
+        // Update existing customer
+        const customer = await window.customerApi.updateCustomer({
+          id: customerId,
+          ...data,
+          state: state.name,
+        });
+        showSuccess('Customer updated successfully');
+        reset(defaultValues);
+        onSuccess(customer);
+      } else {
+        // Create new customer
+        const customer = await window.customerApi.createCustomer({
+          ...data,
+          state: state.name,
+        });
+        showSuccess('Customer created successfully');
+        onSuccess(customer);
+      }
     } catch (error) {
       showError(
-        error instanceof Error ? error.message : 'Failed to create customer.'
+        error instanceof Error
+          ? error.message
+          : `Failed to ${isEditMode ? 'update' : 'create'} customer.`
       );
     }
   };
+
+  // Show loading state while fetching customer data
+  if (loading) {
+    return (
+      <Dialog
+        fullScreen
+        open={open}
+        slots={{
+          transition: Transition,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog
@@ -101,13 +202,13 @@ export default function NewCustomer({
             <CloseIcon />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
-            Create New Customer
+            {isEditMode ? 'Edit Customer' : 'Create New Customer'}
           </Typography>
         </Toolbar>
       </AppBar>
       <Box
         component='form'
-        onSubmit={handleSubmit(handleNewCustomer)}
+        onSubmit={handleSubmit(handleFormSubmit)}
         noValidate
         sx={{
           display: 'flex',
@@ -224,7 +325,7 @@ export default function NewCustomer({
               size='large'
               color='primary'
             >
-              Create
+              {isEditMode ? 'Save Changes' : 'Create'}
             </Button>
           </Stack>
         </Box>

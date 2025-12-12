@@ -9,6 +9,8 @@ export enum CompanyIpcChannel {
 
 export enum CustomerIpcChannel {
   Create = 'customer:create',
+  Update = 'customer:update',
+  Get = 'customer:get',
   List = 'customer:list',
   ListArchived = 'customer:list-archived',
   Delete = 'customer:delete',
