@@ -7,6 +7,7 @@ import App from './App';
 import theme from './theme/theme';
 import './index.css';
 import { CompanyProvider } from './providers/company';
+import { NotificationProvider } from './providers/notification';
 
 const root = createRoot(document.getElementById('root'));
 
@@ -15,9 +16,11 @@ root.render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <HashRouter>
-        <CompanyProvider>
-          <App />
-        </CompanyProvider>
+        <NotificationProvider>
+          <CompanyProvider>
+            <App />
+          </CompanyProvider>
+        </NotificationProvider>
       </HashRouter>
     </ThemeProvider>
   </React.StrictMode>

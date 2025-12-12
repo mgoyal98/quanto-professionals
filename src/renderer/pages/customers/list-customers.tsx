@@ -26,11 +26,14 @@ import NewCustomer from './new-customer';
 import { Customer } from '@shared/customer';
 import { formatIpcError } from '@shared/ipc';
 import { usePagination } from '@/hooks/usePagination';
+import { useNotification } from '@/providers/notification';
 
 type CustomerTab = 'active' | 'archived';
 
 export default function CustomerList() {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
+
   const [activeTab, setActiveTab] = useState<CustomerTab>('active');
   const [activeCustomers, setActiveCustomers] = useState<Customer[]>([]);
   const [archivedCustomers, setArchivedCustomers] = useState<Customer[]>([]);
@@ -86,9 +89,12 @@ export default function CustomerList() {
       const result = await window.customerApi.deleteCustomer(id, name);
       if (result) {
         void loadCustomers();
+        showSuccess('Customer archived successfully');
       }
     } catch (err) {
-      // Handle error silently for now
+      showError(
+        err instanceof Error ? err.message : 'Failed to archive customer.'
+      );
     }
   };
 
@@ -99,9 +105,12 @@ export default function CustomerList() {
       const result = await window.customerApi.restoreCustomer(id, name);
       if (result) {
         void loadCustomers();
+        showSuccess('Customer restored successfully');
       }
     } catch (err) {
-      // Handle error silently for now
+      showError(
+        err instanceof Error ? err.message : 'Failed to restore customer.'
+      );
     }
   };
 

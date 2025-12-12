@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import StateInput from '@/components/state-input';
 import { Customer } from '@shared/customer';
 import { getStateByCode } from '@shared/states';
+import { useNotification } from '@/providers/notification';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -36,6 +37,8 @@ export default function NewCustomer({
   onClose,
   onSuccess,
 }: NewCustomerProps) {
+  const { showSuccess, showError } = useNotification();
+
   const {
     register,
     handleSubmit,
@@ -69,9 +72,12 @@ export default function NewCustomer({
         ...data,
         state: state.name,
       });
+      showSuccess('Customer created successfully');
       onSuccess(customer);
     } catch (error) {
-      console.error('Failed to create customer:', error);
+      showError(
+        error instanceof Error ? error.message : 'Failed to create customer.'
+      );
     }
   };
 
