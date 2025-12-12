@@ -22,11 +22,32 @@ function listCustomers() {
   return result;
 }
 
+function listArchivedCustomers() {
+  const db = getActiveDb();
+  const result = db
+    .select()
+    .from(customersTable)
+    .where(eq(customersTable.isArchived, true))
+    .orderBy(asc(customersTable.name))
+    .all();
+  return result;
+}
+
 function deleteCustomer(id: number) {
   const db = getActiveDb();
   const result = db
     .update(customersTable)
     .set({ isArchived: true })
+    .where(eq(customersTable.id, id))
+    .returning();
+  return result;
+}
+
+function restoreCustomer(id: number) {
+  const db = getActiveDb();
+  const result = db
+    .update(customersTable)
+    .set({ isArchived: false })
     .where(eq(customersTable.id, id))
     .returning();
   return result;
@@ -50,17 +71,43 @@ export function registerCustomerHandlers() {
       throw new Error(formatIpcError(error));
     }
   });
+  ipcMain.handle(CustomerIpcChannel.ListArchived, async (_event) => {
+    try {
+      return listArchivedCustomers();
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
   ipcMain.handle(
     CustomerIpcChannel.Delete,
     async (_event, id: number, name: string) => {
       try {
         const result = await dialog.showMessageBox({
           type: 'warning',
-          message: `Are you sure you want to delete this customer (${name})?`,
+          message: `Are you sure you want to archive this customer (${name})?`,
           buttons: ['Yes', 'No'],
         });
         if (result.response === 0) {
           await deleteCustomer(id);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        throw new Error(formatIpcError(error));
+      }
+    }
+  );
+  ipcMain.handle(
+    CustomerIpcChannel.Restore,
+    async (_event, id: number, name: string) => {
+      try {
+        const result = await dialog.showMessageBox({
+          type: 'info',
+          message: `Are you sure you want to restore this customer (${name})?`,
+          buttons: ['Yes', 'No'],
+        });
+        if (result.response === 0) {
+          await restoreCustomer(id);
           return true;
         }
         return false;

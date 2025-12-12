@@ -10,7 +10,9 @@ export enum CompanyIpcChannel {
 export enum CustomerIpcChannel {
   Create = 'customer:create',
   List = 'customer:list',
+  ListArchived = 'customer:list-archived',
   Delete = 'customer:delete',
+  Restore = 'customer:restore',
 }
 
 export function formatIpcError(error: unknown) {
