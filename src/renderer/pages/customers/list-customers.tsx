@@ -133,11 +133,16 @@ export default function CustomerList() {
     });
   }, [currentCustomers, searchQuery]);
 
-  const { currentItems, currentPage, totalPages, totalItems, goToPage } =
-    usePagination({
-      items: filteredCustomers,
-      itemsPerPage: 10,
-    });
+  const {
+    currentItems,
+    currentPage,
+    totalItems,
+    goToPage,
+    itemsPerPage,
+    setItemsPerPage,
+  } = usePagination({
+    items: filteredCustomers,
+  });
 
   const getEmptyMessage = () => {
     if (searchQuery) {
@@ -252,7 +257,9 @@ export default function CustomerList() {
                     ) : (
                       currentItems.map((customer, index) => (
                         <TableRow key={customer.id} hover>
-                          <TableCell>{currentPage * 10 + index + 1}</TableCell>
+                          <TableCell>
+                            {currentPage * itemsPerPage + index + 1}
+                          </TableCell>
                           <TableCell>{customer.name}</TableCell>
                           <TableCell>{customer.gstin || '-'}</TableCell>
                           <TableCell>{customer.pan || '-'}</TableCell>
@@ -309,8 +316,10 @@ export default function CustomerList() {
                 count={totalItems}
                 page={currentPage}
                 onPageChange={(_event, page) => goToPage(page)}
-                rowsPerPage={10}
-                onRowsPerPageChange={() => {}}
+                rowsPerPage={itemsPerPage}
+                onRowsPerPageChange={(event) =>
+                  setItemsPerPage(Number(event.target.value))
+                }
               />
             </Stack>
           </Box>
