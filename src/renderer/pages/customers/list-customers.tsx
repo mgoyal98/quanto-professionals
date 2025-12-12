@@ -86,7 +86,7 @@ export default function CustomerList() {
     if (!window.customerApi) return;
 
     try {
-      const result = await window.customerApi.deleteCustomer(id, name);
+      const result = await window.customerApi.archiveCustomer(id, name);
       if (result) {
         void loadCustomers();
         showSuccess('Customer archived successfully');

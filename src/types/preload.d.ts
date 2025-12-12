@@ -19,7 +19,7 @@ declare global {
       createCustomer(payload: CreateCustomerRequest): Promise<Customer>;
       listCustomers(): Promise<Customer[]>;
       listArchivedCustomers(): Promise<Customer[]>;
-      deleteCustomer(id: number, name: string): Promise<boolean>;
+      archiveCustomer(id: number, name: string): Promise<boolean>;
       restoreCustomer(id: number, name: string): Promise<boolean>;
     };
   }

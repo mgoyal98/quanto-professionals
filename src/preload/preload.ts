@@ -25,7 +25,7 @@ const customerApi = {
     ipcRenderer.invoke(CustomerIpcChannel.List) as Promise<Customer[]>,
   listArchivedCustomers: () =>
     ipcRenderer.invoke(CustomerIpcChannel.ListArchived) as Promise<Customer[]>,
-  deleteCustomer: (id: number, name: string) =>
+  archiveCustomer: (id: number, name: string) =>
     ipcRenderer.invoke(CustomerIpcChannel.Delete, id, name) as Promise<boolean>,
   restoreCustomer: (id: number, name: string) =>
     ipcRenderer.invoke(

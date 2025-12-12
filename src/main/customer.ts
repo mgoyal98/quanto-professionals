@@ -33,7 +33,7 @@ function listArchivedCustomers() {
   return result;
 }
 
-function deleteCustomer(id: number) {
+function archiveCustomer(id: number) {
   const db = getActiveDb();
   const result = db
     .update(customersTable)
@@ -88,7 +88,7 @@ export function registerCustomerHandlers() {
           buttons: ['Yes', 'No'],
         });
         if (result.response === 0) {
-          await deleteCustomer(id);
+          await archiveCustomer(id);
           return true;
         }
         return false;
