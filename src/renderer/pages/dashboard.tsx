@@ -45,7 +45,7 @@ export default function Dashboard() {
       color: '#1976d2',
     },
     {
-      title: 'New Client',
+      title: 'New Customer',
       icon: <People />,
       path: Routes.NewCustomer,
       color: '#2e7d32',

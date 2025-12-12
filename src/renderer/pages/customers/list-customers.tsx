@@ -122,7 +122,7 @@ export default function CustomerList() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       <Stack spacing={3}>
         <Box
           sx={{
@@ -137,7 +137,7 @@ export default function CustomerList() {
             startIcon={<Add />}
             onClick={() => setOpenNewCustomerModal(true)}
           >
-            Add Customer
+            Create Customer
           </Button>
         </Box>
 

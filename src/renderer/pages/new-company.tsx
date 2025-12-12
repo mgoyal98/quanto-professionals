@@ -2,7 +2,6 @@ import { companyFormSchema, CompanyFormValues } from '@/common/company';
 import { Routes } from '@/common/routes';
 import {
   Alert,
-  Autocomplete,
   Box,
   Button,
   Divider,
@@ -10,12 +9,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { getStateByCode, stateOptions } from '@shared/states';
-import { Controller, useForm } from 'react-hook-form';
+import { getStateByCode } from '@shared/states';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useCompany } from '@/providers/company';
+import StateInput from '@/components/state-input';
 
 export default function NewCompany() {
   const navigate = useNavigate();
@@ -195,38 +195,7 @@ export default function NewCompany() {
               />
             </Grid>
             <Grid size={6}>
-              <Controller
-                name='stateCode'
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    value={
-                      field?.value
-                        ? stateOptions.find(
-                            (option) => option.value === field.value
-                          )
-                        : ''
-                    }
-                    options={stateOptions}
-                    fullWidth
-                    onChange={(_event, newValue) => {
-                      field.onChange(
-                        (newValue as { value: string })?.value ?? ''
-                      );
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label='State'
-                        error={Boolean(errors.stateCode)}
-                        helperText={errors.stateCode?.message}
-                        required
-                      />
-                    )}
-                  />
-                )}
-              />
+              <StateInput control={control} errors={errors} />
             </Grid>
             <Grid size={6}>
               <TextField

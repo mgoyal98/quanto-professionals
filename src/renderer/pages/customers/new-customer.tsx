@@ -95,7 +95,7 @@ export default function NewCustomer({
             <CloseIcon />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
-            Add New Customer
+            Create New Customer
           </Typography>
         </Toolbar>
       </AppBar>
@@ -218,7 +218,7 @@ export default function NewCustomer({
               size='large'
               color='primary'
             >
-              Add
+              Create
             </Button>
           </Stack>
         </Box>
