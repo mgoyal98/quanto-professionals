@@ -17,6 +17,7 @@ import {
   TableRow,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { Add, Archive, Edit, Restore, Search } from '@mui/icons-material';
@@ -301,35 +302,44 @@ export default function CustomerList() {
                             >
                               {activeTab === 'active' ? (
                                 <>
-                                  <IconButton
-                                    size='small'
-                                    onClick={() =>
-                                      handleOpenEditModal(customer.id)
-                                    }
-                                    color='primary'
-                                  >
-                                    <Edit />
-                                  </IconButton>
-                                  <IconButton
-                                    size='small'
-                                    onClick={() =>
-                                      handleArchive(customer.id, customer.name)
-                                    }
-                                    color='warning'
-                                  >
-                                    <Archive />
-                                  </IconButton>
+                                  <Tooltip title='Edit'>
+                                    <IconButton
+                                      size='small'
+                                      onClick={() =>
+                                        handleOpenEditModal(customer.id)
+                                      }
+                                      color='primary'
+                                    >
+                                      <Edit />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title='Archive'>
+                                    <IconButton
+                                      size='small'
+                                      onClick={() =>
+                                        handleArchive(
+                                          customer.id,
+                                          customer.name
+                                        )
+                                      }
+                                      color='warning'
+                                    >
+                                      <Archive />
+                                    </IconButton>
+                                  </Tooltip>
                                 </>
                               ) : (
-                                <IconButton
-                                  size='small'
-                                  onClick={() =>
-                                    handleRestore(customer.id, customer.name)
-                                  }
-                                  color='success'
-                                >
-                                  <Restore />
-                                </IconButton>
+                                <Tooltip title='Restore'>
+                                  <IconButton
+                                    size='small'
+                                    onClick={() =>
+                                      handleRestore(customer.id, customer.name)
+                                    }
+                                    color='success'
+                                  >
+                                    <Restore />
+                                  </IconButton>
+                                </Tooltip>
                               )}
                             </Stack>
                           </TableCell>

@@ -117,6 +117,12 @@ const themeOptions: ThemeOptions = {
         },
       },
     },
+    MuiTooltip: {
+      defaultProps: {
+        placement: 'top',
+        arrow: true,
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         ':root': {
