@@ -9,6 +9,7 @@ import CustomerList from './pages/customers/list-customers';
 import SettingsPage from './pages/settings';
 import CompanySettings from './pages/settings/company-settings';
 import InvoiceSeriesSettings from './pages/settings/invoice-series-settings';
+import TaxTemplateSettings from './pages/settings/tax-template-settings';
 
 export default function AppRoutes() {
   return (
@@ -23,6 +24,8 @@ export default function AppRoutes() {
         <Route path='dashboard' element={<Dashboard />} />
 
         <Route path='customers' element={<CustomerList />} />
+
+        <Route path='tax-templates' element={<TaxTemplateSettings />} />
 
         {/* Settings routes */}
         <Route path='settings' element={<SettingsPage />}>

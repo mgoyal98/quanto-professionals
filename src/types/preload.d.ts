@@ -14,6 +14,12 @@ import {
   InvoiceSeries,
   UpdateInvoiceSeriesRequest,
 } from '@shared/invoice-series';
+import {
+  CreateTaxTemplateRequest,
+  TaxTemplate,
+  TaxType,
+  UpdateTaxTemplateRequest,
+} from '@shared/tax-template';
 
 declare global {
   interface Window {
@@ -50,6 +56,17 @@ declare global {
       setDefaultSeries(id: number): Promise<InvoiceSeries>;
       getNextNumber(id: number): Promise<number | null>;
       incrementNextNumber(id: number): Promise<InvoiceSeries>;
+    };
+    taxTemplateApi?: {
+      createTaxTemplate(payload: CreateTaxTemplateRequest): Promise<TaxTemplate>;
+      getTaxTemplate(id: number): Promise<TaxTemplate | undefined>;
+      updateTaxTemplate(payload: UpdateTaxTemplateRequest): Promise<TaxTemplate>;
+      listTaxTemplates(): Promise<TaxTemplate[]>;
+      listArchivedTaxTemplates(): Promise<TaxTemplate[]>;
+      listTaxTemplatesByType(taxType: TaxType): Promise<TaxTemplate[]>;
+      archiveTaxTemplate(id: number, name: string): Promise<boolean>;
+      restoreTaxTemplate(id: number, name: string): Promise<boolean>;
+      setDefaultTaxTemplate(id: number): Promise<TaxTemplate>;
     };
   }
 }

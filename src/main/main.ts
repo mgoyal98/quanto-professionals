@@ -4,6 +4,7 @@ import started from 'electron-squirrel-startup';
 import { closeActiveDb, registerCompanyHandlers } from './company-manager';
 import { registerCustomerHandlers } from './customer';
 import { registerInvoiceSeriesHandlers } from './invoice-series';
+import { registerTaxTemplateHandlers } from './tax-template';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -74,3 +75,4 @@ app.on('before-quit', () => {
 registerCompanyHandlers();
 registerCustomerHandlers();
 registerInvoiceSeriesHandlers();
+registerTaxTemplateHandlers();

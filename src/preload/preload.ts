@@ -15,9 +15,16 @@ import {
   UpdateInvoiceSeriesRequest,
 } from '@shared/invoice-series';
 import {
+  CreateTaxTemplateRequest,
+  TaxTemplate,
+  TaxType,
+  UpdateTaxTemplateRequest,
+} from '@shared/tax-template';
+import {
   CompanyIpcChannel,
   CustomerIpcChannel,
   InvoiceSeriesIpcChannel,
+  TaxTemplateIpcChannel,
 } from '@shared/ipc';
 import { contextBridge, ipcRenderer } from 'electron';
 
@@ -121,6 +128,59 @@ const invoiceSeriesApi = {
     ) as Promise<InvoiceSeries>,
 };
 
+const taxTemplateApi = {
+  createTaxTemplate: (payload: CreateTaxTemplateRequest) =>
+    ipcRenderer.invoke(
+      TaxTemplateIpcChannel.Create,
+      payload
+    ) as Promise<TaxTemplate>,
+
+  getTaxTemplate: (id: number) =>
+    ipcRenderer.invoke(TaxTemplateIpcChannel.Get, id) as Promise<
+      TaxTemplate | undefined
+    >,
+
+  updateTaxTemplate: (payload: UpdateTaxTemplateRequest) =>
+    ipcRenderer.invoke(
+      TaxTemplateIpcChannel.Update,
+      payload
+    ) as Promise<TaxTemplate>,
+
+  listTaxTemplates: () =>
+    ipcRenderer.invoke(TaxTemplateIpcChannel.List) as Promise<TaxTemplate[]>,
+
+  listArchivedTaxTemplates: () =>
+    ipcRenderer.invoke(TaxTemplateIpcChannel.ListArchived) as Promise<
+      TaxTemplate[]
+    >,
+
+  listTaxTemplatesByType: (taxType: TaxType) =>
+    ipcRenderer.invoke(TaxTemplateIpcChannel.ListByType, taxType) as Promise<
+      TaxTemplate[]
+    >,
+
+  archiveTaxTemplate: (id: number, name: string) =>
+    ipcRenderer.invoke(
+      TaxTemplateIpcChannel.Archive,
+      id,
+      name
+    ) as Promise<boolean>,
+
+  restoreTaxTemplate: (id: number, name: string) =>
+    ipcRenderer.invoke(
+      TaxTemplateIpcChannel.Restore,
+      id,
+      name
+    ) as Promise<boolean>,
+
+  setDefaultTaxTemplate: (id: number) =>
+    ipcRenderer.invoke(
+      TaxTemplateIpcChannel.SetDefault,
+      id
+    ) as Promise<TaxTemplate>,
+};
+
 contextBridge.exposeInMainWorld('companyApi', companyApi);
 contextBridge.exposeInMainWorld('customerApi', customerApi);
 contextBridge.exposeInMainWorld('invoiceSeriesApi', invoiceSeriesApi);
+contextBridge.exposeInMainWorld('taxTemplateApi', taxTemplateApi);

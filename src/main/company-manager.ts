@@ -15,6 +15,7 @@ import { slugify } from '@shared/utils';
 import { companiesTable } from '@db/schema';
 import { eq } from 'drizzle-orm';
 import { CompanyIpcChannel, formatIpcError } from '@shared/ipc';
+import { seedTaxTemplates } from './tax-template';
 
 let activeDb: BetterSQLite3Database<Record<string, never>> & {
   $client: Database.Database;
@@ -88,6 +89,10 @@ async function openCompany(filePath: string) {
     throw new Error('Company database not found.');
   }
   activeDb = db;
+
+  // Seed tax templates if not already seeded
+  seedTaxTemplates();
+
   const company = await getCompanyDetails();
   if (company) {
     addToRecentCompanies({

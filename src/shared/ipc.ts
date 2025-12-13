@@ -31,6 +31,18 @@ export enum InvoiceSeriesIpcChannel {
   IncrementNumber = 'invoice-series:increment-number',
 }
 
+export enum TaxTemplateIpcChannel {
+  Create = 'tax-template:create',
+  Update = 'tax-template:update',
+  Get = 'tax-template:get',
+  List = 'tax-template:list',
+  ListArchived = 'tax-template:list-archived',
+  ListByType = 'tax-template:list-by-type',
+  Archive = 'tax-template:archive',
+  Restore = 'tax-template:restore',
+  SetDefault = 'tax-template:set-default',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;

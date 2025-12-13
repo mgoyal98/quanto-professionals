@@ -8,6 +8,8 @@ export enum Routes {
   // NewCustomer = '/customers/new',
   // EditCustomer = '/customers/:id/edit',
 
+  TaxTemplates = '/tax-templates',
+
   Settings = '/settings',
   SettingsCompany = '/settings/company',
   SettingsInvoiceSeries = '/settings/invoice-series',
