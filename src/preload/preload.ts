@@ -33,12 +33,18 @@ import {
   ItemWithTaxTemplates,
 } from '@shared/item';
 import {
+  CreatePaymentMethodRequest,
+  UpdatePaymentMethodRequest,
+  PaymentMethod,
+} from '@shared/payment-method';
+import {
   CompanyIpcChannel,
   CustomerIpcChannel,
   InvoiceSeriesIpcChannel,
   TaxTemplateIpcChannel,
   DiscountTemplateIpcChannel,
   ItemIpcChannel,
+  PaymentMethodIpcChannel,
 } from '@shared/ipc';
 import { contextBridge, ipcRenderer } from 'electron';
 
@@ -287,9 +293,59 @@ const itemApi = {
     ipcRenderer.invoke(ItemIpcChannel.Restore, id, name) as Promise<boolean>,
 };
 
+const paymentMethodApi = {
+  createPaymentMethod: (payload: CreatePaymentMethodRequest) =>
+    ipcRenderer.invoke(
+      PaymentMethodIpcChannel.Create,
+      payload
+    ) as Promise<PaymentMethod>,
+
+  getPaymentMethod: (id: number) =>
+    ipcRenderer.invoke(PaymentMethodIpcChannel.Get, id) as Promise<
+      PaymentMethod | undefined
+    >,
+
+  updatePaymentMethod: (payload: UpdatePaymentMethodRequest) =>
+    ipcRenderer.invoke(
+      PaymentMethodIpcChannel.Update,
+      payload
+    ) as Promise<PaymentMethod>,
+
+  listPaymentMethods: () =>
+    ipcRenderer.invoke(PaymentMethodIpcChannel.List) as Promise<
+      PaymentMethod[]
+    >,
+
+  listArchivedPaymentMethods: () =>
+    ipcRenderer.invoke(PaymentMethodIpcChannel.ListArchived) as Promise<
+      PaymentMethod[]
+    >,
+
+  archivePaymentMethod: (id: number, name: string) =>
+    ipcRenderer.invoke(
+      PaymentMethodIpcChannel.Archive,
+      id,
+      name
+    ) as Promise<boolean>,
+
+  restorePaymentMethod: (id: number, name: string) =>
+    ipcRenderer.invoke(
+      PaymentMethodIpcChannel.Restore,
+      id,
+      name
+    ) as Promise<boolean>,
+
+  setDefaultPaymentMethod: (id: number) =>
+    ipcRenderer.invoke(
+      PaymentMethodIpcChannel.SetDefault,
+      id
+    ) as Promise<PaymentMethod>,
+};
+
 contextBridge.exposeInMainWorld('companyApi', companyApi);
 contextBridge.exposeInMainWorld('customerApi', customerApi);
 contextBridge.exposeInMainWorld('invoiceSeriesApi', invoiceSeriesApi);
 contextBridge.exposeInMainWorld('taxTemplateApi', taxTemplateApi);
 contextBridge.exposeInMainWorld('discountTemplateApi', discountTemplateApi);
 contextBridge.exposeInMainWorld('itemApi', itemApi);
+contextBridge.exposeInMainWorld('paymentMethodApi', paymentMethodApi);

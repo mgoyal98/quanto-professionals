@@ -65,6 +65,17 @@ export enum ItemIpcChannel {
   Restore = 'item:restore',
 }
 
+export enum PaymentMethodIpcChannel {
+  Create = 'payment-method:create',
+  Update = 'payment-method:update',
+  Get = 'payment-method:get',
+  List = 'payment-method:list',
+  ListArchived = 'payment-method:list-archived',
+  Archive = 'payment-method:archive',
+  Restore = 'payment-method:restore',
+  SetDefault = 'payment-method:set-default',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;

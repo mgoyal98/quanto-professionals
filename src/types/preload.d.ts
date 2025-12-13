@@ -32,6 +32,11 @@ import {
   ItemListResponse,
   ItemWithTaxTemplates,
 } from '@shared/item';
+import {
+  CreatePaymentMethodRequest,
+  UpdatePaymentMethodRequest,
+  PaymentMethod,
+} from '@shared/payment-method';
 
 declare global {
   interface Window {
@@ -109,6 +114,20 @@ declare global {
       searchItems(search: string, limit?: number): Promise<ItemListResponse>;
       archiveItem(id: number, name: string): Promise<boolean>;
       restoreItem(id: number, name: string): Promise<boolean>;
+    };
+    paymentMethodApi?: {
+      createPaymentMethod(
+        payload: CreatePaymentMethodRequest
+      ): Promise<PaymentMethod>;
+      getPaymentMethod(id: number): Promise<PaymentMethod | undefined>;
+      updatePaymentMethod(
+        payload: UpdatePaymentMethodRequest
+      ): Promise<PaymentMethod>;
+      listPaymentMethods(): Promise<PaymentMethod[]>;
+      listArchivedPaymentMethods(): Promise<PaymentMethod[]>;
+      archivePaymentMethod(id: number, name: string): Promise<boolean>;
+      restorePaymentMethod(id: number, name: string): Promise<boolean>;
+      setDefaultPaymentMethod(id: number): Promise<PaymentMethod>;
     };
   }
 }

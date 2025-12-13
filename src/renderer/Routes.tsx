@@ -9,6 +9,7 @@ import CustomerList from './pages/customers/list-customers';
 import SettingsPage from './pages/settings';
 import CompanySettings from './pages/settings/company-settings';
 import InvoiceSeriesSettings from './pages/settings/invoice-series-settings';
+import PaymentMethodSettings from './pages/settings/payment-method-settings';
 import TaxTemplateSettings from './pages/taxes/tax-template-settings';
 import DiscountTemplateList from './pages/discounts/discount-template-list';
 import ItemList from './pages/items/item-list';
@@ -38,6 +39,7 @@ export default function AppRoutes() {
           <Route index element={<Navigate to='company' replace />} />
           <Route path='company' element={<CompanySettings />} />
           <Route path='invoice-series' element={<InvoiceSeriesSettings />} />
+          <Route path='payment-methods' element={<PaymentMethodSettings />} />
         </Route>
       </Route>
     </Routes>
