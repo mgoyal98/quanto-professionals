@@ -2,13 +2,15 @@ import { Box, Card, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { Routes } from '@/common/routes';
 
-type SettingsTab = 'company';
+type SettingsTab = 'company' | 'invoice-series';
 
 const tabRoutes: Record<SettingsTab, string> = {
   company: Routes.SettingsCompany,
+  'invoice-series': Routes.SettingsInvoiceSeries,
 };
 
 function getActiveTab(pathname: string): SettingsTab {
+  if (pathname.includes('/settings/invoice-series')) return 'invoice-series';
   if (pathname.includes('/settings/company')) return 'company';
   return 'company';
 }
@@ -19,7 +21,10 @@ export default function SettingsPage() {
 
   const activeTab = getActiveTab(location.pathname);
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: SettingsTab) => {
+  const handleTabChange = (
+    _event: React.SyntheticEvent,
+    newValue: SettingsTab
+  ) => {
     navigate(tabRoutes[newValue]);
   };
 
@@ -36,9 +41,11 @@ export default function SettingsPage() {
               aria-label='settings tabs'
             >
               <Tab label='Company' value='company' sx={{ minWidth: 120 }} />
-              {/* Future tabs */}
-              {/* <Tab label='General' value='general' sx={{ minWidth: 120 }} /> */}
-              {/* <Tab label='Bank Details' value='bank' sx={{ minWidth: 120 }} /> */}
+              <Tab
+                label='Invoice Series'
+                value='invoice-series'
+                sx={{ minWidth: 140 }}
+              />
             </Tabs>
           </Box>
 
@@ -50,4 +57,3 @@ export default function SettingsPage() {
     </Box>
   );
 }
-

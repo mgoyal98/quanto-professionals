@@ -3,6 +3,7 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { closeActiveDb, registerCompanyHandlers } from './company-manager';
 import { registerCustomerHandlers } from './customer';
+import { registerInvoiceSeriesHandlers } from './invoice-series';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -72,3 +73,4 @@ app.on('before-quit', () => {
 // Handlers
 registerCompanyHandlers();
 registerCustomerHandlers();
+registerInvoiceSeriesHandlers();

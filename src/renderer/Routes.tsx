@@ -8,6 +8,7 @@ import Dashboard from './pages/dashboard';
 import CustomerList from './pages/customers/list-customers';
 import SettingsPage from './pages/settings';
 import CompanySettings from './pages/settings/company-settings';
+import InvoiceSeriesSettings from './pages/settings/invoice-series-settings';
 
 export default function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ export default function AppRoutes() {
         <Route path='settings' element={<SettingsPage />}>
           <Route index element={<Navigate to='company' replace />} />
           <Route path='company' element={<CompanySettings />} />
+          <Route path='invoice-series' element={<InvoiceSeriesSettings />} />
         </Route>
       </Route>
     </Routes>

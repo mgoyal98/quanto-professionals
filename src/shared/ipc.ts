@@ -18,6 +18,19 @@ export enum CustomerIpcChannel {
   Restore = 'customer:restore',
 }
 
+export enum InvoiceSeriesIpcChannel {
+  Create = 'invoice-series:create',
+  Update = 'invoice-series:update',
+  Get = 'invoice-series:get',
+  List = 'invoice-series:list',
+  ListArchived = 'invoice-series:list-archived',
+  Archive = 'invoice-series:archive',
+  Restore = 'invoice-series:restore',
+  SetDefault = 'invoice-series:set-default',
+  GetNextNumber = 'invoice-series:get-next-number',
+  IncrementNumber = 'invoice-series:increment-number',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;

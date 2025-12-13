@@ -10,4 +10,5 @@ export enum Routes {
 
   Settings = '/settings',
   SettingsCompany = '/settings/company',
+  SettingsInvoiceSeries = '/settings/invoice-series',
 }

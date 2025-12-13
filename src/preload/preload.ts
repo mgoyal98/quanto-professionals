@@ -9,7 +9,16 @@ import {
   Customer,
   UpdateCustomerRequest,
 } from '@shared/customer';
-import { CompanyIpcChannel, CustomerIpcChannel } from '@shared/ipc';
+import {
+  CreateInvoiceSeriesRequest,
+  InvoiceSeries,
+  UpdateInvoiceSeriesRequest,
+} from '@shared/invoice-series';
+import {
+  CompanyIpcChannel,
+  CustomerIpcChannel,
+  InvoiceSeriesIpcChannel,
+} from '@shared/ipc';
 import { contextBridge, ipcRenderer } from 'electron';
 
 const companyApi = {
@@ -52,5 +61,66 @@ const customerApi = {
     ) as Promise<boolean>,
 };
 
+const invoiceSeriesApi = {
+  createInvoiceSeries: (payload: CreateInvoiceSeriesRequest) =>
+    ipcRenderer.invoke(
+      InvoiceSeriesIpcChannel.Create,
+      payload
+    ) as Promise<InvoiceSeries>,
+
+  getInvoiceSeries: (id: number) =>
+    ipcRenderer.invoke(InvoiceSeriesIpcChannel.Get, id) as Promise<
+      InvoiceSeries | undefined
+    >,
+
+  updateInvoiceSeries: (payload: UpdateInvoiceSeriesRequest) =>
+    ipcRenderer.invoke(
+      InvoiceSeriesIpcChannel.Update,
+      payload
+    ) as Promise<InvoiceSeries>,
+
+  listInvoiceSeries: () =>
+    ipcRenderer.invoke(InvoiceSeriesIpcChannel.List) as Promise<
+      InvoiceSeries[]
+    >,
+
+  listArchivedInvoiceSeries: () =>
+    ipcRenderer.invoke(InvoiceSeriesIpcChannel.ListArchived) as Promise<
+      InvoiceSeries[]
+    >,
+
+  archiveInvoiceSeries: (id: number, name: string) =>
+    ipcRenderer.invoke(
+      InvoiceSeriesIpcChannel.Archive,
+      id,
+      name
+    ) as Promise<boolean>,
+
+  restoreInvoiceSeries: (id: number, name: string) =>
+    ipcRenderer.invoke(
+      InvoiceSeriesIpcChannel.Restore,
+      id,
+      name
+    ) as Promise<boolean>,
+
+  setDefaultSeries: (id: number) =>
+    ipcRenderer.invoke(
+      InvoiceSeriesIpcChannel.SetDefault,
+      id
+    ) as Promise<InvoiceSeries>,
+
+  getNextNumber: (id: number) =>
+    ipcRenderer.invoke(InvoiceSeriesIpcChannel.GetNextNumber, id) as Promise<
+      number | null
+    >,
+
+  incrementNextNumber: (id: number) =>
+    ipcRenderer.invoke(
+      InvoiceSeriesIpcChannel.IncrementNumber,
+      id
+    ) as Promise<InvoiceSeries>,
+};
+
 contextBridge.exposeInMainWorld('companyApi', companyApi);
 contextBridge.exposeInMainWorld('customerApi', customerApi);
+contextBridge.exposeInMainWorld('invoiceSeriesApi', invoiceSeriesApi);

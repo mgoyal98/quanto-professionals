@@ -9,6 +9,11 @@ import {
   Customer,
   UpdateCustomerRequest,
 } from '@shared/customer';
+import {
+  CreateInvoiceSeriesRequest,
+  InvoiceSeries,
+  UpdateInvoiceSeriesRequest,
+} from '@shared/invoice-series';
 
 declare global {
   interface Window {
@@ -29,6 +34,22 @@ declare global {
       listArchivedCustomers(): Promise<Customer[]>;
       archiveCustomer(id: number, name: string): Promise<boolean>;
       restoreCustomer(id: number, name: string): Promise<boolean>;
+    };
+    invoiceSeriesApi?: {
+      createInvoiceSeries(
+        payload: CreateInvoiceSeriesRequest
+      ): Promise<InvoiceSeries>;
+      getInvoiceSeries(id: number): Promise<InvoiceSeries | undefined>;
+      updateInvoiceSeries(
+        payload: UpdateInvoiceSeriesRequest
+      ): Promise<InvoiceSeries>;
+      listInvoiceSeries(): Promise<InvoiceSeries[]>;
+      listArchivedInvoiceSeries(): Promise<InvoiceSeries[]>;
+      archiveInvoiceSeries(id: number, name: string): Promise<boolean>;
+      restoreInvoiceSeries(id: number, name: string): Promise<boolean>;
+      setDefaultSeries(id: number): Promise<InvoiceSeries>;
+      getNextNumber(id: number): Promise<number | null>;
+      incrementNextNumber(id: number): Promise<InvoiceSeries>;
     };
   }
 }
