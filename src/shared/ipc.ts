@@ -54,6 +54,17 @@ export enum DiscountTemplateIpcChannel {
   SetDefault = 'discount-template:set-default',
 }
 
+export enum ItemIpcChannel {
+  Create = 'item:create',
+  Update = 'item:update',
+  Get = 'item:get',
+  List = 'item:list',
+  ListArchived = 'item:list-archived',
+  Search = 'item:search',
+  Archive = 'item:archive',
+  Restore = 'item:restore',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;

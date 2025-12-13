@@ -26,11 +26,19 @@ import {
   UpdateDiscountTemplateRequest,
 } from '@shared/discount';
 import {
+  CreateItemRequest,
+  UpdateItemRequest,
+  ItemListParams,
+  ItemListResponse,
+  ItemWithTaxTemplates,
+} from '@shared/item';
+import {
   CompanyIpcChannel,
   CustomerIpcChannel,
   InvoiceSeriesIpcChannel,
   TaxTemplateIpcChannel,
   DiscountTemplateIpcChannel,
+  ItemIpcChannel,
 } from '@shared/ipc';
 import { contextBridge, ipcRenderer } from 'electron';
 
@@ -235,8 +243,53 @@ const discountTemplateApi = {
     ) as Promise<DiscountTemplate>,
 };
 
+const itemApi = {
+  createItem: (payload: CreateItemRequest) =>
+    ipcRenderer.invoke(
+      ItemIpcChannel.Create,
+      payload
+    ) as Promise<ItemWithTaxTemplates>,
+
+  getItem: (id: number) =>
+    ipcRenderer.invoke(ItemIpcChannel.Get, id) as Promise<
+      ItemWithTaxTemplates | undefined
+    >,
+
+  updateItem: (payload: UpdateItemRequest) =>
+    ipcRenderer.invoke(
+      ItemIpcChannel.Update,
+      payload
+    ) as Promise<ItemWithTaxTemplates>,
+
+  listItems: (params?: ItemListParams) =>
+    ipcRenderer.invoke(
+      ItemIpcChannel.List,
+      params
+    ) as Promise<ItemListResponse>,
+
+  listArchivedItems: (params?: Omit<ItemListParams, 'isActive'>) =>
+    ipcRenderer.invoke(
+      ItemIpcChannel.ListArchived,
+      params
+    ) as Promise<ItemListResponse>,
+
+  searchItems: (search: string, limit?: number) =>
+    ipcRenderer.invoke(
+      ItemIpcChannel.Search,
+      search,
+      limit
+    ) as Promise<ItemListResponse>,
+
+  archiveItem: (id: number, name: string) =>
+    ipcRenderer.invoke(ItemIpcChannel.Archive, id, name) as Promise<boolean>,
+
+  restoreItem: (id: number, name: string) =>
+    ipcRenderer.invoke(ItemIpcChannel.Restore, id, name) as Promise<boolean>,
+};
+
 contextBridge.exposeInMainWorld('companyApi', companyApi);
 contextBridge.exposeInMainWorld('customerApi', customerApi);
 contextBridge.exposeInMainWorld('invoiceSeriesApi', invoiceSeriesApi);
 contextBridge.exposeInMainWorld('taxTemplateApi', taxTemplateApi);
 contextBridge.exposeInMainWorld('discountTemplateApi', discountTemplateApi);
+contextBridge.exposeInMainWorld('itemApi', itemApi);

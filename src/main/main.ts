@@ -6,6 +6,7 @@ import { registerCustomerHandlers } from './customer';
 import { registerInvoiceSeriesHandlers } from './invoice-series';
 import { registerTaxTemplateHandlers } from './tax-template';
 import { registerDiscountTemplateHandlers } from './discount-template';
+import { registerItemHandlers } from './item';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -78,3 +79,4 @@ registerCustomerHandlers();
 registerInvoiceSeriesHandlers();
 registerTaxTemplateHandlers();
 registerDiscountTemplateHandlers();
+registerItemHandlers();

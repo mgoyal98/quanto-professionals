@@ -25,6 +25,13 @@ import {
   DiscountTemplate,
   UpdateDiscountTemplateRequest,
 } from '@shared/discount';
+import {
+  CreateItemRequest,
+  UpdateItemRequest,
+  ItemListParams,
+  ItemListResponse,
+  ItemWithTaxTemplates,
+} from '@shared/item';
 
 declare global {
   interface Window {
@@ -63,9 +70,13 @@ declare global {
       incrementNextNumber(id: number): Promise<InvoiceSeries>;
     };
     taxTemplateApi?: {
-      createTaxTemplate(payload: CreateTaxTemplateRequest): Promise<TaxTemplate>;
+      createTaxTemplate(
+        payload: CreateTaxTemplateRequest
+      ): Promise<TaxTemplate>;
       getTaxTemplate(id: number): Promise<TaxTemplate | undefined>;
-      updateTaxTemplate(payload: UpdateTaxTemplateRequest): Promise<TaxTemplate>;
+      updateTaxTemplate(
+        payload: UpdateTaxTemplateRequest
+      ): Promise<TaxTemplate>;
       listTaxTemplates(): Promise<TaxTemplate[]>;
       listArchivedTaxTemplates(): Promise<TaxTemplate[]>;
       listTaxTemplatesByType(taxType: TaxType): Promise<TaxTemplate[]>;
@@ -86,6 +97,18 @@ declare global {
       archiveDiscountTemplate(id: number, name: string): Promise<boolean>;
       restoreDiscountTemplate(id: number, name: string): Promise<boolean>;
       setDefaultDiscountTemplate(id: number): Promise<DiscountTemplate>;
+    };
+    itemApi?: {
+      createItem(payload: CreateItemRequest): Promise<ItemWithTaxTemplates>;
+      getItem(id: number): Promise<ItemWithTaxTemplates | undefined>;
+      updateItem(payload: UpdateItemRequest): Promise<ItemWithTaxTemplates>;
+      listItems(params?: ItemListParams): Promise<ItemListResponse>;
+      listArchivedItems(
+        params?: Omit<ItemListParams, 'isActive'>
+      ): Promise<ItemListResponse>;
+      searchItems(search: string, limit?: number): Promise<ItemListResponse>;
+      archiveItem(id: number, name: string): Promise<boolean>;
+      restoreItem(id: number, name: string): Promise<boolean>;
     };
   }
 }
