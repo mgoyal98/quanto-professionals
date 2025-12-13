@@ -9,6 +9,7 @@ export enum Routes {
   // EditCustomer = '/customers/:id/edit',
 
   TaxTemplates = '/tax-templates',
+  Discounts = '/discounts',
 
   Settings = '/settings',
   SettingsCompany = '/settings/company',

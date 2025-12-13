@@ -43,6 +43,17 @@ export enum TaxTemplateIpcChannel {
   SetDefault = 'tax-template:set-default',
 }
 
+export enum DiscountTemplateIpcChannel {
+  Create = 'discount-template:create',
+  Update = 'discount-template:update',
+  Get = 'discount-template:get',
+  List = 'discount-template:list',
+  ListArchived = 'discount-template:list-archived',
+  Archive = 'discount-template:archive',
+  Restore = 'discount-template:restore',
+  SetDefault = 'discount-template:set-default',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;

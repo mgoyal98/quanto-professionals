@@ -5,6 +5,7 @@ import { closeActiveDb, registerCompanyHandlers } from './company-manager';
 import { registerCustomerHandlers } from './customer';
 import { registerInvoiceSeriesHandlers } from './invoice-series';
 import { registerTaxTemplateHandlers } from './tax-template';
+import { registerDiscountTemplateHandlers } from './discount-template';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -76,3 +77,4 @@ registerCompanyHandlers();
 registerCustomerHandlers();
 registerInvoiceSeriesHandlers();
 registerTaxTemplateHandlers();
+registerDiscountTemplateHandlers();

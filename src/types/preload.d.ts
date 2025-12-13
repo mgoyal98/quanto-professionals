@@ -20,6 +20,11 @@ import {
   TaxType,
   UpdateTaxTemplateRequest,
 } from '@shared/tax-template';
+import {
+  CreateDiscountTemplateRequest,
+  DiscountTemplate,
+  UpdateDiscountTemplateRequest,
+} from '@shared/discount';
 
 declare global {
   interface Window {
@@ -67,6 +72,20 @@ declare global {
       archiveTaxTemplate(id: number, name: string): Promise<boolean>;
       restoreTaxTemplate(id: number, name: string): Promise<boolean>;
       setDefaultTaxTemplate(id: number): Promise<TaxTemplate>;
+    };
+    discountTemplateApi?: {
+      createDiscountTemplate(
+        payload: CreateDiscountTemplateRequest
+      ): Promise<DiscountTemplate>;
+      getDiscountTemplate(id: number): Promise<DiscountTemplate | undefined>;
+      updateDiscountTemplate(
+        payload: UpdateDiscountTemplateRequest
+      ): Promise<DiscountTemplate>;
+      listDiscountTemplates(): Promise<DiscountTemplate[]>;
+      listArchivedDiscountTemplates(): Promise<DiscountTemplate[]>;
+      archiveDiscountTemplate(id: number, name: string): Promise<boolean>;
+      restoreDiscountTemplate(id: number, name: string): Promise<boolean>;
+      setDefaultDiscountTemplate(id: number): Promise<DiscountTemplate>;
     };
   }
 }

@@ -10,6 +10,7 @@ import SettingsPage from './pages/settings';
 import CompanySettings from './pages/settings/company-settings';
 import InvoiceSeriesSettings from './pages/settings/invoice-series-settings';
 import TaxTemplateSettings from './pages/settings/tax-template-settings';
+import DiscountTemplateList from './pages/discounts/discount-template-list';
 
 export default function AppRoutes() {
   return (
@@ -26,6 +27,8 @@ export default function AppRoutes() {
         <Route path='customers' element={<CustomerList />} />
 
         <Route path='tax-templates' element={<TaxTemplateSettings />} />
+
+        <Route path='discounts' element={<DiscountTemplateList />} />
 
         {/* Settings routes */}
         <Route path='settings' element={<SettingsPage />}>

@@ -16,6 +16,7 @@ import { companiesTable } from '@db/schema';
 import { eq } from 'drizzle-orm';
 import { CompanyIpcChannel, formatIpcError } from '@shared/ipc';
 import { seedTaxTemplates } from './tax-template';
+import { seedDiscountTemplates } from './discount-template';
 
 let activeDb: BetterSQLite3Database<Record<string, never>> & {
   $client: Database.Database;
@@ -90,8 +91,9 @@ async function openCompany(filePath: string) {
   }
   activeDb = db;
 
-  // Seed tax templates if not already seeded
+  // Seed templates if not already seeded
   seedTaxTemplates();
+  seedDiscountTemplates();
 
   const company = await getCompanyDetails();
   if (company) {
