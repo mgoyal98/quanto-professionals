@@ -40,7 +40,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     { text: 'Invoices', icon: <Receipt />, path: '/invoices' },
     { text: 'Customers', icon: <People />, path: Routes.Customers },
     { text: 'Items', icon: <Inventory2 />, path: '/items' },
-    { text: 'Tax Templates', icon: <ReceiptLong />, path: Routes.TaxTemplates },
+    { text: 'Taxes', icon: <ReceiptLong />, path: Routes.TaxTemplates },
     { text: 'Discounts', icon: <LocalOffer />, path: Routes.Discounts },
     { text: 'Reports', icon: <Assessment />, path: '/reports/general' },
     { text: 'Formats', icon: <FormatPaint />, path: '/formats' },

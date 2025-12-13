@@ -58,7 +58,7 @@ export default function TaxTemplateSettings() {
 
   const loadTemplates = async () => {
     if (!window.taxTemplateApi) {
-      setError('Tax Template API is not available.');
+      setError('Tax API is not available.');
       setLoading(false);
       return;
     }
@@ -105,11 +105,11 @@ export default function TaxTemplateSettings() {
       const result = await window.taxTemplateApi.archiveTaxTemplate(id, name);
       if (result) {
         void loadTemplates();
-        showSuccess('Tax template archived successfully');
+        showSuccess('Tax archived successfully');
       }
     } catch (err) {
       showError(
-        err instanceof Error ? err.message : 'Failed to archive tax template.'
+        err instanceof Error ? err.message : 'Failed to archive tax.'
       );
     }
   };
@@ -121,11 +121,11 @@ export default function TaxTemplateSettings() {
       const result = await window.taxTemplateApi.restoreTaxTemplate(id, name);
       if (result) {
         void loadTemplates();
-        showSuccess('Tax template restored successfully');
+        showSuccess('Tax restored successfully');
       }
     } catch (err) {
       showError(
-        err instanceof Error ? err.message : 'Failed to restore tax template.'
+        err instanceof Error ? err.message : 'Failed to restore tax.'
       );
     }
   };
@@ -169,8 +169,8 @@ export default function TaxTemplateSettings() {
 
   const getEmptyMessage = () => {
     return activeTab === 'active'
-      ? 'No tax templates found. Create your first template to get started.'
-      : 'No archived templates. Templates you archive will appear here.';
+      ? 'No taxes found. Create your first tax to get started.'
+      : 'No archived taxes. Taxes you archive will appear here.';
   };
 
   const getTaxTypeChipColor = (
@@ -217,7 +217,7 @@ export default function TaxTemplateSettings() {
         >
           <Box>
             <Typography variant='h4' gutterBottom>
-              Tax Templates
+              Taxes
             </Typography>
             <Typography variant='body1' color='text.secondary'>
               Manage tax rates and templates for your invoices

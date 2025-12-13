@@ -103,7 +103,7 @@ export default function TaxTemplateForm({
         }
       } catch (error) {
         showError(
-          error instanceof Error ? error.message : 'Failed to load tax template'
+          error instanceof Error ? error.message : 'Failed to load tax'
         );
         onClose();
       } finally {
@@ -125,12 +125,12 @@ export default function TaxTemplateForm({
           id: templateId,
           ...data,
         });
-        showSuccess('Tax template updated successfully');
+        showSuccess('Tax updated successfully');
         reset(defaultValues);
         onSuccess(template);
       } else {
         const template = await window.taxTemplateApi.createTaxTemplate(data);
-        showSuccess('Tax template created successfully');
+        showSuccess('Tax created successfully');
         reset(defaultValues);
         onSuccess(template);
       }
@@ -138,7 +138,7 @@ export default function TaxTemplateForm({
       showError(
         error instanceof Error
           ? error.message
-          : `Failed to ${isEditMode ? 'update' : 'create'} tax template.`
+          : `Failed to ${isEditMode ? 'update' : 'create'} tax.`
       );
     }
   };
@@ -195,7 +195,7 @@ export default function TaxTemplateForm({
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
       <Box component='form' onSubmit={handleSubmit(handleFormSubmit)} noValidate>
         <DialogTitle>
-          {isEditMode ? 'Edit Tax Template' : 'Create Tax Template'}
+          {isEditMode ? 'Edit Tax' : 'Create Tax'}
         </DialogTitle>
 
         <DialogContent>

@@ -9,7 +9,7 @@ import CustomerList from './pages/customers/list-customers';
 import SettingsPage from './pages/settings';
 import CompanySettings from './pages/settings/company-settings';
 import InvoiceSeriesSettings from './pages/settings/invoice-series-settings';
-import TaxTemplateSettings from './pages/settings/tax-template-settings';
+import TaxTemplateSettings from './pages/taxes/tax-template-settings';
 import DiscountTemplateList from './pages/discounts/discount-template-list';
 
 export default function AppRoutes() {
