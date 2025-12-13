@@ -2,6 +2,7 @@ import type {
   Company,
   CreateCompanyRequest,
   RecentCompany,
+  UpdateCompanyRequest,
 } from '@shared/company';
 import {
   CreateCustomerRequest,
@@ -18,6 +19,7 @@ declare global {
       chooseCompanyFile(): Promise<string | null>;
       getCompanyDetails(): Promise<Company>;
       closeCompany(): Promise<void>;
+      updateCompany(payload: UpdateCompanyRequest): Promise<Company>;
     };
     customerApi?: {
       createCustomer(payload: CreateCustomerRequest): Promise<Customer>;

@@ -23,3 +23,18 @@ export interface CreateCompanyRequest {
 }
 
 export type Company = InferSelectModel<typeof companiesTable>;
+
+export interface UpdateCompanyRequest {
+  name: string;
+  profession?: string;
+  pan?: string;
+  gstin?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  stateCode: string;
+  pinCode: string;
+  phone?: string;
+  email?: string;
+}

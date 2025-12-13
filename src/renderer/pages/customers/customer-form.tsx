@@ -20,6 +20,8 @@ import { useForm } from 'react-hook-form';
 import { customerFormSchema, CustomerFormValues } from '@/common/customer';
 import { zodResolver } from '@hookform/resolvers/zod';
 import StateInput from '@/components/state-input';
+import PanInput from '@/components/pan-input';
+import GstinInput from '@/components/gstin-input';
 import { Customer } from '@shared/customer';
 import { getStateByCode } from '@shared/states';
 import { useNotification } from '@/providers/notification';
@@ -230,22 +232,10 @@ export default function CustomerForm({
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-              <TextField
-                label='PAN'
-                {...register('pan')}
-                error={Boolean(errors.pan)}
-                helperText={errors.pan?.message}
-                fullWidth
-              />
+              <PanInput control={control} errors={errors} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-              <TextField
-                label='GSTIN'
-                {...register('gstin')}
-                error={Boolean(errors.gstin)}
-                helperText={errors.gstin?.message}
-                fullWidth
-              />
+              <GstinInput control={control} errors={errors} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
               <TextField

@@ -1,4 +1,9 @@
-import { Company, CreateCompanyRequest, RecentCompany } from '@shared/company';
+import {
+  Company,
+  CreateCompanyRequest,
+  RecentCompany,
+  UpdateCompanyRequest,
+} from '@shared/company';
 import {
   CreateCustomerRequest,
   Customer,
@@ -20,6 +25,8 @@ const companyApi = {
     ipcRenderer.invoke(CompanyIpcChannel.GetCompanyDetails) as Promise<Company>,
   closeCompany: () =>
     ipcRenderer.invoke(CompanyIpcChannel.Close) as Promise<void>,
+  updateCompany: (payload: UpdateCompanyRequest) =>
+    ipcRenderer.invoke(CompanyIpcChannel.Update, payload) as Promise<Company>,
 };
 
 const customerApi = {

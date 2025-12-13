@@ -16,6 +16,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useCompany } from '@/providers/company';
 import StateInput from '@/components/state-input';
+import PanInput from '@/components/pan-input';
+import GstinInput from '@/components/gstin-input';
 
 export default function NewCompany() {
   const navigate = useNavigate();
@@ -138,22 +140,10 @@ export default function NewCompany() {
               />
             </Grid>
             <Grid size={6}>
-              <TextField
-                label='PAN'
-                {...register('pan')}
-                error={Boolean(errors.pan)}
-                helperText={errors.pan?.message}
-                fullWidth
-              />
+              <PanInput control={control} errors={errors} />
             </Grid>
             <Grid size={6}>
-              <TextField
-                label='GSTIN'
-                {...register('gstin')}
-                error={Boolean(errors.gstin)}
-                helperText={errors.gstin?.message}
-                fullWidth
-              />
+              <GstinInput control={control} errors={errors} />
             </Grid>
             <Grid size={6}>
               <TextField

@@ -7,4 +7,7 @@ export enum Routes {
   NewCustomer = '/customers?newCustomer=true',
   // NewCustomer = '/customers/new',
   // EditCustomer = '/customers/:id/edit',
+
+  Settings = '/settings',
+  SettingsCompany = '/settings/company',
 }

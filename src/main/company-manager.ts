@@ -2,12 +2,18 @@ import { app, dialog, ipcMain } from 'electron';
 import path from 'node:path';
 import fs from 'fs-extra';
 import { config } from '@shared/config';
-import { CreateCompanyRequest, RecentCompany } from '@shared/company';
+import {
+  Company,
+  CreateCompanyRequest,
+  RecentCompany,
+  UpdateCompanyRequest,
+} from '@shared/company';
 import Database from 'better-sqlite3';
 import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { slugify } from '@shared/utils';
 import { companiesTable } from '@db/schema';
+import { eq } from 'drizzle-orm';
 import { CompanyIpcChannel, formatIpcError } from '@shared/ipc';
 
 let activeDb: BetterSQLite3Database<Record<string, never>> & {
@@ -97,6 +103,22 @@ async function getCompanyDetails() {
   const db = getActiveDb();
   const company = db.select().from(companiesTable).limit(1).get();
   return company;
+}
+
+async function updateCompany(data: UpdateCompanyRequest): Promise<Company> {
+  const db = getActiveDb();
+
+  const result = db
+    .update(companiesTable)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(companiesTable.id, 1))
+    .returning()
+    .get();
+
+  return result;
 }
 
 export function getActiveDb() {
@@ -216,4 +238,14 @@ export function registerCompanyHandlers() {
       throw new Error(formatIpcError(error));
     }
   });
+  ipcMain.handle(
+    CompanyIpcChannel.Update,
+    async (_event, data: UpdateCompanyRequest) => {
+      try {
+        return await updateCompany(data);
+      } catch (error) {
+        throw new Error(formatIpcError(error));
+      }
+    }
+  );
 }

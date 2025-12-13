@@ -5,6 +5,7 @@ export enum CompanyIpcChannel {
   ChooseFile = 'company:choose-file',
   GetRecent = 'company:get-recent',
   Close = 'company:close',
+  Update = 'company:update',
 }
 
 export enum CustomerIpcChannel {

@@ -40,7 +40,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     { text: 'Items', icon: <Inventory2 />, path: '/items' },
     { text: 'Reports', icon: <Assessment />, path: '/reports/general' },
     { text: 'Formats', icon: <FormatPaint />, path: '/formats' },
-    { text: 'Settings', icon: <Settings />, path: '/settings/organization' },
+    { text: 'Settings', icon: <Settings />, path: Routes.Settings },
   ];
 
   const handleNavigation = (path: string) => {
