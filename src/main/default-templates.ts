@@ -121,30 +121,30 @@ export const DEFAULT_HTML_TEMPLATE = `<table border="0" cellpadding="0" cellspac
 <table border="0" cellpadding="4" cellspacing="0" width="100%">
   <tr>
     <td class="brdL brdB padding-3 bold align-center" width="20%">Rupees (In Words)</td>
-    <td class="brdL brdB padding-3 brdR" colspan="5"><%= invoice.grandTotalInWords %></td>
+    <td class="brdL brdB padding-3 brdR" colspan="4"><%= invoice.grandTotalInWords %></td>
   </tr>
 
   <tr>
-    <td colspan="5">&nbsp;</td>
+    <td colspan="4">&nbsp;</td>
     <td class="align-center bold">
-      <% if (invoice.status === 'PAID') { %>PAID<% } else if (invoice.status === 'PARTIALLY_PAID') { %>PARTIALLY PAID<% } %>
+      <% if (invoice.status === 'PAID') { %>Paid<% } else if (invoice.status === 'PARTIALLY_PAID') { %>Partially Paid<% } else if (invoice.status === 'UNPAID') { %>Unpaid<% } %>
     </td>
   </tr>
 
   <tr>
-    <td class="colspan="6" class="padding-3""><b>Reverse Charge:</b> <%= invoice.reverseChargeText %></td>
+    <td class="colspan="5" class="padding-3""><b>Reverse Charge:</b> <%= invoice.reverseChargeText %></td>
   </tr>
 
   <% if (invoice.notes) { %>
   <tr>
-    <td colspan="6" class="padding-3">
+    <td colspan="5" class="padding-3">
       <b>Notes:</b> <%= invoice.notes %>
     </td>
   </tr>
   <% } %>
 
   <tr>
-    <td colspan="6">&nbsp;</td>
+    <td colspan="5">&nbsp;</td>
   </tr>
 </table>
 

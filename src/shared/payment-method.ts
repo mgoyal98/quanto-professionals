@@ -119,5 +119,24 @@ export const STANDARD_PAYMENT_METHODS: CreatePaymentMethodRequest[] = [
     description: 'Cash payment',
     isDefault: true,
   },
+  {
+    name: 'Net Banking',
+    type: 'BANK_TRANSFER',
+    description: 'NEFT/RTGS/IMPS bank transfer',
+  },
+  {
+    name: 'UPI',
+    type: 'UPI',
+    description: 'UPI payment',
+  },
+  {
+    name: 'Cheque',
+    type: 'CHEQUE',
+    description: 'Cheque payment',
+  },
+  {
+    name: 'Card',
+    type: 'CARD',
+    description: 'Credit/Debit card payment',
+  },
 ];
-
