@@ -407,9 +407,7 @@ export function calculateInvoiceItem(input: {
       taxesDiscounts.push({
         type: 'CGST',
         taxTemplateId: taxTemplateId ?? null,
-        name: taxTemplateName
-          ? `CGST (${taxTemplateName})`
-          : `CGST @ ${gstBreakdown.cgstRate}%`,
+        name: `CGST @ ${gstBreakdown.cgstRate}%`,
         rate: gstBreakdown.cgstRate,
         rateType: 'PERCENT',
         taxableAmount,
@@ -423,9 +421,7 @@ export function calculateInvoiceItem(input: {
       taxesDiscounts.push({
         type: 'SGST',
         taxTemplateId: taxTemplateId ?? null,
-        name: taxTemplateName
-          ? `SGST (${taxTemplateName})`
-          : `SGST @ ${gstBreakdown.sgstRate}%`,
+        name: `SGST @ ${gstBreakdown.sgstRate}%`,
         rate: gstBreakdown.sgstRate,
         rateType: 'PERCENT',
         taxableAmount,
@@ -440,9 +436,7 @@ export function calculateInvoiceItem(input: {
       taxesDiscounts.push({
         type: 'IGST',
         taxTemplateId: taxTemplateId ?? null,
-        name: taxTemplateName
-          ? `IGST (${taxTemplateName})`
-          : `IGST @ ${gstBreakdown.igstRate}%`,
+        name: `IGST @ ${gstBreakdown.igstRate}%`,
         rate: gstBreakdown.igstRate,
         rateType: 'PERCENT',
         taxableAmount,
