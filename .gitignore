@@ -91,5 +91,6 @@ typings/
 # Electron-Forge
 out/
 
-drizzle/
+# drizzle/
 docs/
+sample-format/
