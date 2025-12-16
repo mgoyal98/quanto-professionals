@@ -10,7 +10,16 @@ jobs:
     # We use a matrix to run on all platforms at once
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            arch: x64
+          - os: ubuntu-latest
+            arch: x64
+          # We run two separate Mac jobs to get both binaries
+          - os: macos-latest
+            arch: x64
+          - os: macos-latest
+            arch: arm64
 
     # Required for the GITHUB_TOKEN to upload files to the release
     permissions:
@@ -31,7 +40,7 @@ jobs:
 
       - name: Rebuild Native Modules
         # This ensures better-sqlite3 is compiled for the Electron headers
-        run: npx electron-rebuild -f -w better-sqlite3
+        run: npx electron-rebuild -f -w better-sqlite3 --arch=${{ matrix.arch }}
 
       # Linux build often needs 'fpm' for .deb and .rpm files
       - name: Install Linux Dependencies
@@ -46,4 +55,4 @@ jobs:
           # This token is automatically provided by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # Runs the 'publish' command in your package.json
-        run: npm run publish
+        run: npm run publish -- --arch=${{ matrix.arch }}
