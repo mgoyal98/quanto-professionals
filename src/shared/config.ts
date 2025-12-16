@@ -7,6 +7,7 @@ export const config = {
     author: 'Madhur Goyal',
     description:
       'A modern, offline-first invoice management desktop application for service providers',
+    executableName: 'quanto-professionals',
   },
   company: {
     maxRecent: 10,
@@ -14,5 +15,7 @@ export const config = {
   github: {
     owner: 'mgoyal98',
     repo: 'quanto-professionals',
+    name: 'Madhur Goyal',
+    repoUrl: 'https://github.com/mgoyal98/quanto-professionals',
   },
 };

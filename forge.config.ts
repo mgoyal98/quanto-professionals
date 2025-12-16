@@ -27,6 +27,7 @@ const config: ForgeConfig = {
       /vite\.config\..*/,
     ],
     appBundleId: appConfig.app.bundleId,
+    executableName: appConfig.app.executableName,
   },
   rebuildConfig: {},
   makers: [
@@ -40,7 +41,14 @@ const config: ForgeConfig = {
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerDeb({
+      options: {
+        // Matches the executableName set in packagerConfig
+        bin: appConfig.app.executableName,
+        maintainer: appConfig.github.name,
+        homepage: appConfig.github.repoUrl,
+      },
+    }),
     new MakerDMG({
       icon: path.join(__dirname, 'assets/icon.icns'),
       background: path.join(__dirname, 'assets/dmg-background.png'),
