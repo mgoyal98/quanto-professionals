@@ -29,6 +29,10 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Rebuild Native Modules
+        # This ensures better-sqlite3 is compiled for the Electron headers
+        run: npx electron-rebuild -f -w better-sqlite3
+
       # Linux build often needs 'fpm' for .deb and .rpm files
       - name: Install Linux Dependencies
         if: matrix.os == 'ubuntu-latest'

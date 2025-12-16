@@ -12,7 +12,8 @@
     "lint": "eslint --ext .ts,.tsx .",
     "release:patch": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version patch && git push && git push --tags || echo 'Error: Must be on main branch'",
     "release:minor": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version minor && git push && git push --tags || echo 'Error: Must be on main branch'",
-    "release:major": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version major && git push && git push --tags || echo 'Error: Must be on main branch'"
+    "release:major": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version major && git push && git push --tags || echo 'Error: Must be on main branch'",
+    "release:same": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version --allow-same-version && git push && git push --tags || echo 'Error: Must be on main branch'"
   },
   "keywords": [
     "invoice",
