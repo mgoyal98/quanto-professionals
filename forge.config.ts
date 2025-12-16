@@ -38,7 +38,7 @@ const config: ForgeConfig = {
       setupIcon: path.join(__dirname, 'assets/icon.ico'),
       // The GIF that plays during the background installation
       loadingGif: path.join(__dirname, 'assets/installing.gif'),
-      setupExe: appConfig.build.executableName,
+      setupExe: appConfig.build.exeSetup,
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),

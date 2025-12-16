@@ -13,7 +13,8 @@ export const config = {
     author: 'Madhur Goyal',
     description:
       'A modern, offline-first invoice management desktop application for service providers',
-    executableName: 'Quanto-Professionals-Setup.exe',
+    executableName: 'quanto-professionals',
+    exeSetup: 'Quanto-Professionals-Setup.exe',
   },
   github: {
     owner: 'mgoyal98',
