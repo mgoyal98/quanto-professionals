@@ -1,31 +1,50 @@
 {
   "name": "quanto-professionals",
   "productName": "Quanto Professionals",
-  "version": "1.0.0",
-  "description": "Invoice management for service providers",
+  "version": "0.0.1",
+  "description": "A modern, offline-first invoice management desktop application for service providers",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "release:patch": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version patch && git push && git push --tags || echo 'Error: Must be on main branch'",
+    "release:minor": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version minor && git push && git push --tags || echo 'Error: Must be on main branch'",
+    "release:major": "[ \"$(git branch --show-current)\" = \"main\" ] && git pull origin main && npm version major && git push && git push --tags || echo 'Error: Must be on main branch'"
   },
-  "keywords": [],
+  "keywords": [
+    "invoice",
+    "invoicing",
+    "billing",
+    "gst",
+    "accounting",
+    "desktop",
+    "electron",
+    "offline",
+    "india",
+    "tax",
+    "freelancer",
+    "small-business"
+  ],
   "author": {
     "name": "Madhur Goyal",
-    "email": "madhur.goyal2@gmail.com"
+    "email": "hi@mgoyal.com"
   },
   "license": "MIT",
+  "repository": "https://github.com/mgoyal98/quanto-professionals",
   "devDependencies": {
     "@electron-forge/cli": "^7.10.2",
     "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-dmg": "^7.10.2",
     "@electron-forge/maker-rpm": "^7.10.2",
     "@electron-forge/maker-squirrel": "^7.10.2",
     "@electron-forge/maker-zip": "^7.10.2",
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron-forge/plugin-vite": "^7.10.2",
+    "@electron-forge/publisher-github": "^7.10.2",
     "@electron/fuses": "^1.8.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/ejs": "^3.1.5",
@@ -61,6 +80,7 @@
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.68.0",
     "react-router": "^7.10.1",
+    "update-electron-app": "^3.1.2",
     "zod": "^4.1.13"
   }
 }

@@ -11,6 +11,14 @@ import { registerPaymentMethodHandlers } from './payment-method';
 import { registerInvoiceHandlers } from './invoice';
 import { registerPaymentHandlers } from './payment';
 import { registerInvoiceFormatHandlers } from './invoice-format';
+import { updateElectronApp } from 'update-electron-app';
+
+if (!started && !process.argv.includes('--squirrel-firstrun')) {
+  updateElectronApp({
+    logger: console,
+    notifyUser: true, // This shows the "Update Ready" dialog automatically
+  });
+}
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {

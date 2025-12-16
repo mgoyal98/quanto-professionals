@@ -8,12 +8,15 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import path from 'node:path';
+import { PublisherGithub } from '@electron-forge/publisher-github';
+import { config as appConfig } from './src/shared/config';
+import { MakerDMG } from '@electron-forge/maker-dmg';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    name: 'Quanto Professionals',
+    name: appConfig.app.name,
     asar: true,
-    appCategoryType: 'public.app-category.finance',
+    appCategoryType: appConfig.app.macCategory,
     icon: path.resolve(__dirname, 'assets/icon'),
     ignore: [
       /node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/,
@@ -23,14 +26,36 @@ const config: ForgeConfig = {
       /src\//,
       /vite\.config\..*/,
     ],
-    appBundleId: 'com.mgoyal98.quantoProfessionals',
+    appBundleId: appConfig.app.bundleId,
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      name: appConfig.app.name,
+      authors: appConfig.app.author,
+      description: appConfig.app.description,
+      setupIcon: path.join(__dirname, 'assets/icon.ico'),
+      // The GIF that plays during the background installation
+      loadingGif: path.join(__dirname, 'assets/installing.gif'),
+    }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({}),
+    new MakerDMG({
+      icon: path.join(__dirname, 'assets/icon.icns'),
+      background: path.join(__dirname, 'assets/dmg-background.png'),
+      format: 'ULFO',
+      iconSize: 80,
+      contents: (opts) => [
+        { x: 140, y: 200, type: 'file', path: opts.appPath },
+        { x: 520, y: 200, type: 'link', path: '/Applications' },
+      ],
+      additionalDMGOptions: {
+        window: {
+          size: { width: 660, height: 400 },
+        },
+      },
+    }),
   ],
   plugins: [
     new VitePlugin({
@@ -68,6 +93,16 @@ const config: ForgeConfig = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
     new AutoUnpackNativesPlugin({}),
+  ],
+  publishers: [
+    new PublisherGithub({
+      repository: {
+        owner: appConfig.github.owner,
+        name: appConfig.github.repo,
+      },
+      prerelease: false,
+      draft: true, // Uploads as a draft so you can check it before going live
+    }),
   ],
 };
 
