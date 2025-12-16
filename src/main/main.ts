@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { closeActiveDb, registerCompanyHandlers } from './company-manager';
@@ -24,6 +24,7 @@ const createWindow = () => {
     minHeight: 720,
     show: false,
     webPreferences: {
+      devTools: !app.isPackaged,
       contextIsolation: true,
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js'),
@@ -44,14 +45,50 @@ const createWindow = () => {
     mainWindow.show();
   });
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (!app.isPackaged) {
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+  }
+
+  mainWindow.webContents.on('devtools-opened', () => {
+    if (app.isPackaged) {
+      mainWindow.webContents.closeDevTools();
+    }
+  });
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  if (app.isPackaged) {
+    if (process.platform === 'darwin') {
+      // macOS requires at least one menu item (usually the App Name)
+      const osxMenu = Menu.buildFromTemplate([
+        {
+          label: app.name,
+          submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            // We omit { role: 'services' } here to hide the Services tab
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' },
+          ],
+        },
+        // You can add other top-level menus like Edit if your users need Copy/Paste
+        { role: 'editMenu' },
+      ]);
+      Menu.setApplicationMenu(osxMenu);
+    } else {
+      // Windows/Linux can be totally null
+      Menu.setApplicationMenu(null);
+    }
+  }
+  createWindow();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

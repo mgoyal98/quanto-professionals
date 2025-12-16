@@ -46,7 +46,7 @@ function openDatabase(filePath: string, options?: { fileMustExist?: boolean }) {
 
     const db = drizzle(sqliteDb);
 
-    migrate(db, { migrationsFolder: 'drizzle' });
+    migrate(db, { migrationsFolder: path.join(__dirname, '../../drizzle') });
 
     return db;
   } catch {

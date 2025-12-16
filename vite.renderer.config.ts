@@ -8,6 +8,7 @@ export default defineConfig(async () => {
   ]);
 
   return {
+    base: './',
     plugins: [react()],
     resolve: {
       alias: {

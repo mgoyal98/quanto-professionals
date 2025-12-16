@@ -6,10 +6,24 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
+import path from 'node:path';
 
 const config: ForgeConfig = {
   packagerConfig: {
+    name: 'Quanto Professionals',
     asar: true,
+    appCategoryType: 'public.app-category.finance',
+    icon: path.resolve(__dirname, 'assets/icon'),
+    ignore: [
+      /node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/,
+      // Also ignore source and dev-specific files to keep the installer light
+      /\.vscode/,
+      /\.git/,
+      /src\//,
+      /vite\.config\..*/,
+    ],
+    appBundleId: 'com.mgoyal98.quantoProfessionals',
   },
   rebuildConfig: {},
   makers: [
@@ -53,6 +67,7 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
+    new AutoUnpackNativesPlugin({}),
   ],
 };
 
