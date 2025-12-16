@@ -74,5 +74,6 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          MAC_CERT_IDENTITY: ${{ secrets.MAC_CERT_IDENTITY }}
         # Runs the 'publish' command in your package.json
         run: npm run publish -- --arch=${{ matrix.arch }}
