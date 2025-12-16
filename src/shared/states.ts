@@ -112,7 +112,7 @@ export const states: State[] = [
   },
   {
     code: '22',
-    name: 'Chattisgarh',
+    name: 'Chhattisgarh',
     isActive: true,
   },
   {
@@ -190,8 +190,9 @@ export function getStateByCode(code: string): State {
   return state;
 }
 
-export const stateOptions = states.filter((state) => state.isActive).map((state) => ({
-  label: `${state.name} (${state.code})`,
-  value: state.code,
-}));
-
+export const stateOptions = states
+  .filter((state) => state.isActive)
+  .map((state) => ({
+    label: `${state.name} (${state.code})`,
+    value: state.code,
+  }));
