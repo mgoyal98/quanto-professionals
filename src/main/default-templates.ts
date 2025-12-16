@@ -216,6 +216,7 @@ export const DEFAULT_CSS_STYLES = `body {
   font-size: 14px;
   margin: 0;
   padding: 0;
+  padding-right: 1px; /* Prevent right border clipping in PDF */
   line-height: 1.4;
 }
 
@@ -521,6 +522,7 @@ export const NON_GST_CSS_STYLES = `body {
   font-size: 14px;
   margin: 0;
   padding: 0;
+  padding-right: 1px; /* Prevent right border clipping in PDF */
   line-height: 1.4;
 }
 
