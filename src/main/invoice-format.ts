@@ -20,6 +20,10 @@ import {
   DEFAULT_TEMPLATE_DESCRIPTION,
   DEFAULT_HTML_TEMPLATE,
   DEFAULT_CSS_STYLES,
+  NON_GST_TEMPLATE_NAME,
+  NON_GST_TEMPLATE_DESCRIPTION,
+  NON_GST_HTML_TEMPLATE,
+  NON_GST_CSS_STYLES,
 } from './default-templates';
 import { eq, desc, and } from 'drizzle-orm';
 
@@ -183,7 +187,9 @@ function updateInvoiceFormat(
   }
 
   // Allow editing system templates - only protect the name for system templates
-  const updateName = existing.isSystemTemplate ? existing.name : (data.name ?? existing.name);
+  const updateName = existing.isSystemTemplate
+    ? existing.name
+    : (data.name ?? existing.name);
 
   db.update(invoiceFormatsTable)
     .set({
@@ -377,6 +383,7 @@ function getDefaultFormat(): InvoiceFormat | undefined {
 
 /**
  * Initialize default format templates if none exist
+ * Sets the appropriate template as default based on company GST status
  */
 export function initializeDefaultFormats(): void {
   const db = getActiveDb();
@@ -385,14 +392,37 @@ export function initializeDefaultFormats(): void {
   const existingFormats = db.select().from(invoiceFormatsTable).all();
 
   if (existingFormats.length === 0) {
-    // Create the default system template
+    // Check if company has GST
+    const company = db.select().from(companiesTable).limit(1).get();
+    const hasGst = Boolean(company?.gstin);
+
+    // Create the GST system template
     db.insert(invoiceFormatsTable)
       .values({
         name: DEFAULT_TEMPLATE_NAME,
         description: DEFAULT_TEMPLATE_DESCRIPTION,
         htmlTemplate: DEFAULT_HTML_TEMPLATE,
         cssStyles: DEFAULT_CSS_STYLES,
-        isDefault: true,
+        isDefault: hasGst, // Default if company has GST
+        isActive: true,
+        isSystemTemplate: true,
+        paperSize: 'A4',
+        orientation: 'portrait',
+        marginTop: 10,
+        marginRight: 10,
+        marginBottom: 10,
+        marginLeft: 10,
+      })
+      .run();
+
+    // Create the Non GST system template
+    db.insert(invoiceFormatsTable)
+      .values({
+        name: NON_GST_TEMPLATE_NAME,
+        description: NON_GST_TEMPLATE_DESCRIPTION,
+        htmlTemplate: NON_GST_HTML_TEMPLATE,
+        cssStyles: NON_GST_CSS_STYLES,
+        isDefault: !hasGst, // Default if company does NOT have GST
         isActive: true,
         isSystemTemplate: true,
         paperSize: 'A4',
@@ -655,5 +685,3 @@ export function registerInvoiceFormatHandlers() {
     }
   });
 }
-
-
