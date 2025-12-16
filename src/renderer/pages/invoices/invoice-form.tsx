@@ -25,7 +25,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { Add, Delete, Save, ArrowBack } from '@mui/icons-material';
+import { Add, Delete, Save, ArrowBack, Refresh } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -673,6 +673,34 @@ export default function InvoiceForm() {
     }
   };
 
+  const handleReset = () => {
+    // Reset to defaults
+    setSelectedCustomer(null);
+    setInvoiceDate(new Date());
+    setInvoiceItems([]);
+    setTaxDiscountEntries([]);
+    setNotes('');
+    setReverseCharge(false);
+    setPaymentStatus('Unpaid');
+    setPaidAmount(0);
+    setPaidDate(null);
+    setError(null);
+
+    // Reset to defaults from loaded data
+    const defaultSeries = invoiceSeries.find((s) => s.isDefault);
+    if (defaultSeries) {
+      setSelectedSeries(defaultSeries);
+    }
+    const defaultPayment = paymentMethods.find((p) => p.isDefault);
+    if (defaultPayment) {
+      setSelectedPaymentMethod(defaultPayment);
+    }
+    const defaultFormat = invoiceFormats.find((f) => f.isDefault);
+    if (defaultFormat) {
+      setSelectedInvoiceFormat(defaultFormat);
+    }
+  };
+
   const invoiceNumberPreview = selectedSeries
     ? previewNextInvoiceNumber(selectedSeries)
     : '';
@@ -681,29 +709,13 @@ export default function InvoiceForm() {
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box>
         <Stack spacing={3}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <IconButton onClick={() => navigate(Routes.Invoices)}>
-                <ArrowBack />
-              </IconButton>
-              <Typography variant='h4'>
-                {isEdit ? 'Edit Invoice' : 'Create Invoice'}
-              </Typography>
-            </Box>
-            <Button
-              variant='contained'
-              startIcon={<Save />}
-              onClick={handleSubmit}
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : isEdit ? 'Update' : 'Create Invoice'}
-            </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <IconButton onClick={() => navigate(Routes.Invoices)}>
+              <ArrowBack />
+            </IconButton>
+            <Typography variant='h4'>
+              {isEdit ? 'Edit Invoice' : 'Create Invoice'}
+            </Typography>
           </Box>
 
           {error && (
@@ -1258,6 +1270,43 @@ export default function InvoiceForm() {
               </Card>
             </Grid>
           </Grid>
+
+          {/* Action Buttons */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 2,
+              pt: 2,
+            }}
+          >
+            {!isEdit && (
+              <Button
+                variant='outlined'
+                size='large'
+                startIcon={<Refresh />}
+                onClick={handleReset}
+                disabled={saving}
+                sx={{ minWidth: 140 }}
+              >
+                Reset
+              </Button>
+            )}
+            <Button
+              variant='contained'
+              size='large'
+              startIcon={<Save />}
+              onClick={handleSubmit}
+              disabled={saving}
+              sx={{ minWidth: 180 }}
+            >
+              {saving
+                ? 'Saving...'
+                : isEdit
+                  ? 'Update Invoice'
+                  : 'Create Invoice'}
+            </Button>
+          </Box>
         </Stack>
       </Box>
 
