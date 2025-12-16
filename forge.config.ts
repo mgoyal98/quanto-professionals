@@ -28,6 +28,19 @@ const config: ForgeConfig = {
     ],
     appBundleId: appConfig.build.bundleId,
     executableName: appConfig.build.executableName,
+    osxSign: {
+      // Forge will automatically find the certificate in the keychain by its name
+      identity: process.env.MAC_CERT_IDENTITY,
+      optionsForFile: (filePath) => ({
+        hardenedRuntime: true,
+        entitlements: './entitlements.plist',
+      }),
+    },
+    osxNotarize: {
+      appleId: process.env.APPLE_ID,
+      appleIdPassword: process.env.APPLE_ID_PASSWORD,
+      teamId: process.env.APPLE_TEAM_ID,
+    },
   },
   rebuildConfig: {},
   makers: [
