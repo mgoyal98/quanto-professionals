@@ -120,6 +120,7 @@ export interface InvoiceTemplateData {
   dueDate: string | null;
   gstType: 'INTRA' | 'INTER';
   status: string;
+  cancelReason: string | null;
   notes: string | null;
   // Reverse charge (Y/N)
   reverseCharge: boolean;

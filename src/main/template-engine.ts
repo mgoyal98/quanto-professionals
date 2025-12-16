@@ -101,6 +101,7 @@ function buildInvoiceData(invoice: InvoiceWithDetails): InvoiceTemplateData {
     dueDate: dueDate ? formatDateForTemplate(dueDate) : null,
     gstType: invoice.gstType as 'INTRA' | 'INTER',
     status: invoice.status,
+    cancelReason: invoice.cancelReason ?? null,
     notes: invoice.notes ?? null,
     // Reverse charge
     reverseCharge: invoice.reverseCharge ?? false,

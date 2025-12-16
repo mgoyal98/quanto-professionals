@@ -12,7 +12,11 @@ export const NON_GST_TEMPLATE_NAME = 'Non GST Invoice';
 export const NON_GST_TEMPLATE_DESCRIPTION =
   'A professional invoice template for businesses without GST registration. Clean layout without GST-specific fields.';
 
-export const DEFAULT_HTML_TEMPLATE = `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+export const DEFAULT_HTML_TEMPLATE = `<% if (invoice.status === 'CANCELLED') { %>
+<div class="cancelled-banner">CANCELLED</div>
+<% } %>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
     <td class="title">GST INVOICE</td>
   </tr>
@@ -133,7 +137,7 @@ export const DEFAULT_HTML_TEMPLATE = `<table border="0" cellpadding="0" cellspac
   <tr>
     <td colspan="4">&nbsp;</td>
     <td class="align-center bold">
-      <% if (invoice.status === 'PAID') { %>Paid<% } else if (invoice.status === 'PARTIALLY_PAID') { %>Partially Paid<% } else if (invoice.status === 'UNPAID') { %>Unpaid<% } %>
+      <% if (invoice.status === 'PAID') { %>Paid<% } else if (invoice.status === 'PARTIALLY_PAID') { %>Partially Paid<% } else if (invoice.status === 'UNPAID') { %>Unpaid<% } else if (invoice.status === 'CANCELLED') { %><span class="status-cancelled">Cancelled</span><% } %>
     </td>
   </tr>
 
@@ -326,15 +330,41 @@ td {
   font-size: 12px;
 }
 
+.cancelled-banner {
+  background-color: #dc2626;
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 8px;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  border-radius: 4px;
+}
+
+.status-cancelled {
+  color: #dc2626;
+  font-weight: bold;
+}
+
 @media print {
   body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .cancelled-banner {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 }`;
 
 // Non GST Invoice Template - Clean invoice without GST-specific fields
-export const NON_GST_HTML_TEMPLATE = `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+export const NON_GST_HTML_TEMPLATE = `<% if (invoice.status === 'CANCELLED') { %>
+<div class="cancelled-banner">CANCELLED</div>
+<% } %>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
     <td class="title">INVOICE</td>
   </tr>
@@ -443,7 +473,7 @@ export const NON_GST_HTML_TEMPLATE = `<table border="0" cellpadding="0" cellspac
   <tr>
     <td colspan="3">&nbsp;</td>
     <td class="align-center bold">
-      <% if (invoice.status === 'PAID') { %>Paid<% } else if (invoice.status === 'PARTIALLY_PAID') { %>Partially Paid<% } else if (invoice.status === 'UNPAID') { %>Unpaid<% } %>
+      <% if (invoice.status === 'PAID') { %>Paid<% } else if (invoice.status === 'PARTIALLY_PAID') { %>Partially Paid<% } else if (invoice.status === 'UNPAID') { %>Unpaid<% } else if (invoice.status === 'CANCELLED') { %><span class="status-cancelled">Cancelled</span><% } %>
     </td>
   </tr>
 
@@ -632,8 +662,30 @@ td {
   font-size: 12px;
 }
 
+.cancelled-banner {
+  background-color: #dc2626;
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 8px;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  border-radius: 4px;
+}
+
+.status-cancelled {
+  color: #dc2626;
+  font-weight: bold;
+}
+
 @media print {
   body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .cancelled-banner {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
