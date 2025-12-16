@@ -90,9 +90,9 @@ Quanto Professionals is a desktop invoice management application built specifica
 
 ## Screenshots
 
-<!-- Add screenshots here -->
-
-_Screenshots coming soon_
+<p align="center">
+  <img src="assets/screenshot.png" alt="Quanto Professionals Screenshot" width="800">
+</p>
 
 ## Installation
 
