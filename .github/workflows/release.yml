@@ -71,5 +71,8 @@ jobs:
         env:
           # This token is automatically provided by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         # Runs the 'publish' command in your package.json
         run: npm run publish -- --arch=${{ matrix.arch }}
