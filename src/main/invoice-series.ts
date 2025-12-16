@@ -12,6 +12,25 @@ import { and, asc, eq, ne } from 'drizzle-orm';
 // Database Operations
 // ============================================
 
+/**
+ * Seed default invoice series if no series exist
+ */
+export function seedInvoiceSeries() {
+  const db = getActiveDb();
+  const existing = db.select().from(invoiceSeriesTable).all();
+
+  if (existing.length === 0) {
+    db.insert(invoiceSeriesTable)
+      .values({
+        name: '1',
+        isDefault: true,
+        startWith: 1,
+        nextNumber: 1,
+      })
+      .run();
+  }
+}
+
 function createInvoiceSeries(data: CreateInvoiceSeriesRequest) {
   const db = getActiveDb();
 

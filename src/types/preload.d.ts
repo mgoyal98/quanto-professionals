@@ -37,6 +37,29 @@ import {
   UpdatePaymentMethodRequest,
   PaymentMethod,
 } from '@shared/payment-method';
+import {
+  CreateInvoiceRequest,
+  UpdateInvoiceRequest,
+  UpdateInvoiceStatusRequest,
+  RecordPaymentRequest,
+  InvoiceListParams,
+  InvoiceListResponse,
+  InvoiceWithDetails,
+} from '@shared/invoice';
+import {
+  PaymentListParams,
+  PaymentListResponse,
+  PaymentWithDetails,
+} from '@shared/payment';
+import {
+  InvoiceFormat,
+  CreateInvoiceFormatRequest,
+  UpdateInvoiceFormatRequest,
+  RenderInvoiceRequest,
+  RenderInvoiceResponse,
+  GeneratePdfRequest,
+  GeneratePdfResponse,
+} from '@shared/invoice-format';
 
 declare global {
   interface Window {
@@ -128,6 +151,44 @@ declare global {
       archivePaymentMethod(id: number, name: string): Promise<boolean>;
       restorePaymentMethod(id: number, name: string): Promise<boolean>;
       setDefaultPaymentMethod(id: number): Promise<PaymentMethod>;
+    };
+    invoiceApi?: {
+      createInvoice(payload: CreateInvoiceRequest): Promise<InvoiceWithDetails>;
+      getInvoice(id: number): Promise<InvoiceWithDetails | undefined>;
+      updateInvoice(payload: UpdateInvoiceRequest): Promise<InvoiceWithDetails>;
+      listInvoices(params?: InvoiceListParams): Promise<InvoiceListResponse>;
+      updateInvoiceStatus(
+        payload: UpdateInvoiceStatusRequest
+      ): Promise<InvoiceWithDetails>;
+      archiveInvoice(id: number, invoiceNumber: string): Promise<boolean>;
+      restoreInvoice(id: number, invoiceNumber: string): Promise<boolean>;
+      recordPayment(payload: RecordPaymentRequest): Promise<InvoiceWithDetails>;
+      deletePayment(paymentId: number): Promise<InvoiceWithDetails | null>;
+    };
+    paymentApi?: {
+      listPayments(params?: PaymentListParams): Promise<PaymentListResponse>;
+      getPayment(id: number): Promise<PaymentWithDetails | null>;
+      deletePayment(id: number): Promise<{ success: boolean }>;
+    };
+    invoiceFormatApi?: {
+      createInvoiceFormat(
+        payload: CreateInvoiceFormatRequest
+      ): Promise<InvoiceFormat>;
+      updateInvoiceFormat(
+        payload: UpdateInvoiceFormatRequest
+      ): Promise<InvoiceFormat>;
+      getInvoiceFormat(id: number): Promise<InvoiceFormat | undefined>;
+      listInvoiceFormats(): Promise<InvoiceFormat[]>;
+      listActiveInvoiceFormats(): Promise<InvoiceFormat[]>;
+      deleteInvoiceFormat(id: number): Promise<boolean>;
+      duplicateInvoiceFormat(id: number): Promise<InvoiceFormat>;
+      setDefaultInvoiceFormat(id: number): Promise<InvoiceFormat>;
+      renderInvoice(
+        payload: RenderInvoiceRequest
+      ): Promise<RenderInvoiceResponse>;
+      generatePdf(payload: GeneratePdfRequest): Promise<GeneratePdfResponse>;
+      printInvoice(invoiceId: number, formatId?: number): Promise<boolean>;
+      initializeDefaults(): Promise<boolean>;
     };
   }
 }

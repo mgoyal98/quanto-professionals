@@ -38,6 +38,15 @@ import {
   PaymentMethod,
 } from '@shared/payment-method';
 import {
+  CreateInvoiceRequest,
+  UpdateInvoiceRequest,
+  UpdateInvoiceStatusRequest,
+  RecordPaymentRequest,
+  InvoiceListParams,
+  InvoiceListResponse,
+  InvoiceWithDetails,
+} from '@shared/invoice';
+import {
   CompanyIpcChannel,
   CustomerIpcChannel,
   InvoiceSeriesIpcChannel,
@@ -45,7 +54,24 @@ import {
   DiscountTemplateIpcChannel,
   ItemIpcChannel,
   PaymentMethodIpcChannel,
+  InvoiceIpcChannel,
+  PaymentIpcChannel,
+  InvoiceFormatIpcChannel,
 } from '@shared/ipc';
+import {
+  PaymentListParams,
+  PaymentListResponse,
+  PaymentWithDetails,
+} from '@shared/payment';
+import {
+  InvoiceFormat,
+  CreateInvoiceFormatRequest,
+  UpdateInvoiceFormatRequest,
+  RenderInvoiceRequest,
+  RenderInvoiceResponse,
+  GeneratePdfRequest,
+  GeneratePdfResponse,
+} from '@shared/invoice-format';
 import { contextBridge, ipcRenderer } from 'electron';
 
 const companyApi = {
@@ -342,6 +368,150 @@ const paymentMethodApi = {
     ) as Promise<PaymentMethod>,
 };
 
+const invoiceApi = {
+  createInvoice: (payload: CreateInvoiceRequest) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.Create,
+      payload
+    ) as Promise<InvoiceWithDetails>,
+
+  getInvoice: (id: number) =>
+    ipcRenderer.invoke(InvoiceIpcChannel.Get, id) as Promise<
+      InvoiceWithDetails | undefined
+    >,
+
+  updateInvoice: (payload: UpdateInvoiceRequest) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.Update,
+      payload
+    ) as Promise<InvoiceWithDetails>,
+
+  listInvoices: (params?: InvoiceListParams) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.List,
+      params
+    ) as Promise<InvoiceListResponse>,
+
+  updateInvoiceStatus: (payload: UpdateInvoiceStatusRequest) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.UpdateStatus,
+      payload
+    ) as Promise<InvoiceWithDetails>,
+
+  archiveInvoice: (id: number, invoiceNumber: string) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.Archive,
+      id,
+      invoiceNumber
+    ) as Promise<boolean>,
+
+  restoreInvoice: (id: number, invoiceNumber: string) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.Restore,
+      id,
+      invoiceNumber
+    ) as Promise<boolean>,
+
+  recordPayment: (payload: RecordPaymentRequest) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.RecordPayment,
+      payload
+    ) as Promise<InvoiceWithDetails>,
+
+  deletePayment: (paymentId: number) =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.DeletePayment,
+      paymentId
+    ) as Promise<InvoiceWithDetails | null>,
+};
+
+const paymentApi = {
+  listPayments: (params?: PaymentListParams) =>
+    ipcRenderer.invoke(
+      PaymentIpcChannel.List,
+      params
+    ) as Promise<PaymentListResponse>,
+
+  getPayment: (id: number) =>
+    ipcRenderer.invoke(
+      PaymentIpcChannel.Get,
+      id
+    ) as Promise<PaymentWithDetails | null>,
+
+  deletePayment: (id: number) =>
+    ipcRenderer.invoke(PaymentIpcChannel.Delete, id) as Promise<{
+      success: boolean;
+    }>,
+};
+
+const invoiceFormatApi = {
+  createInvoiceFormat: (payload: CreateInvoiceFormatRequest) =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.Create,
+      payload
+    ) as Promise<InvoiceFormat>,
+
+  updateInvoiceFormat: (payload: UpdateInvoiceFormatRequest) =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.Update,
+      payload
+    ) as Promise<InvoiceFormat>,
+
+  getInvoiceFormat: (id: number) =>
+    ipcRenderer.invoke(InvoiceFormatIpcChannel.Get, id) as Promise<
+      InvoiceFormat | undefined
+    >,
+
+  listInvoiceFormats: () =>
+    ipcRenderer.invoke(InvoiceFormatIpcChannel.List) as Promise<
+      InvoiceFormat[]
+    >,
+
+  listActiveInvoiceFormats: () =>
+    ipcRenderer.invoke(InvoiceFormatIpcChannel.ListActive) as Promise<
+      InvoiceFormat[]
+    >,
+
+  deleteInvoiceFormat: (id: number) =>
+    ipcRenderer.invoke(InvoiceFormatIpcChannel.Delete, id) as Promise<boolean>,
+
+  duplicateInvoiceFormat: (id: number) =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.Duplicate,
+      id
+    ) as Promise<InvoiceFormat>,
+
+  setDefaultInvoiceFormat: (id: number) =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.SetDefault,
+      id
+    ) as Promise<InvoiceFormat>,
+
+  renderInvoice: (payload: RenderInvoiceRequest) =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.RenderInvoice,
+      payload
+    ) as Promise<RenderInvoiceResponse>,
+
+  generatePdf: (payload: GeneratePdfRequest) =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.GeneratePdf,
+      payload
+    ) as Promise<GeneratePdfResponse>,
+
+  printInvoice: (invoiceId: number, formatId?: number) =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.PrintInvoice,
+      invoiceId,
+      formatId
+    ) as Promise<boolean>,
+
+  initializeDefaults: () =>
+    ipcRenderer.invoke(
+      InvoiceFormatIpcChannel.InitializeDefaults
+    ) as Promise<boolean>,
+};
+
 contextBridge.exposeInMainWorld('companyApi', companyApi);
 contextBridge.exposeInMainWorld('customerApi', customerApi);
 contextBridge.exposeInMainWorld('invoiceSeriesApi', invoiceSeriesApi);
@@ -349,3 +519,6 @@ contextBridge.exposeInMainWorld('taxTemplateApi', taxTemplateApi);
 contextBridge.exposeInMainWorld('discountTemplateApi', discountTemplateApi);
 contextBridge.exposeInMainWorld('itemApi', itemApi);
 contextBridge.exposeInMainWorld('paymentMethodApi', paymentMethodApi);
+contextBridge.exposeInMainWorld('invoiceApi', invoiceApi);
+contextBridge.exposeInMainWorld('paymentApi', paymentApi);
+contextBridge.exposeInMainWorld('invoiceFormatApi', invoiceFormatApi);

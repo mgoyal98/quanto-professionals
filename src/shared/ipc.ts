@@ -76,6 +76,41 @@ export enum PaymentMethodIpcChannel {
   SetDefault = 'payment-method:set-default',
 }
 
+export enum InvoiceIpcChannel {
+  Create = 'invoice:create',
+  Update = 'invoice:update',
+  Get = 'invoice:get',
+  List = 'invoice:list',
+  UpdateStatus = 'invoice:update-status',
+  Archive = 'invoice:archive',
+  Restore = 'invoice:restore',
+  RecordPayment = 'invoice:record-payment',
+  DeletePayment = 'invoice:delete-payment',
+  GetPayments = 'invoice:get-payments',
+}
+
+export enum PaymentIpcChannel {
+  List = 'payment:list',
+  Get = 'payment:get',
+  Delete = 'payment:delete',
+}
+
+export enum InvoiceFormatIpcChannel {
+  Create = 'invoice-format:create',
+  Update = 'invoice-format:update',
+  Get = 'invoice-format:get',
+  List = 'invoice-format:list',
+  ListActive = 'invoice-format:list-active',
+  Delete = 'invoice-format:delete',
+  Duplicate = 'invoice-format:duplicate',
+  SetDefault = 'invoice-format:set-default',
+  Preview = 'invoice-format:preview',
+  RenderInvoice = 'invoice-format:render-invoice',
+  GeneratePdf = 'invoice-format:generate-pdf',
+  PrintInvoice = 'invoice-format:print',
+  InitializeDefaults = 'invoice-format:initialize-defaults',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;

@@ -8,6 +8,9 @@ import { registerTaxTemplateHandlers } from './tax-template';
 import { registerDiscountTemplateHandlers } from './discount-template';
 import { registerItemHandlers } from './item';
 import { registerPaymentMethodHandlers } from './payment-method';
+import { registerInvoiceHandlers } from './invoice';
+import { registerPaymentHandlers } from './payment';
+import { registerInvoiceFormatHandlers } from './invoice-format';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -82,3 +85,6 @@ registerTaxTemplateHandlers();
 registerDiscountTemplateHandlers();
 registerItemHandlers();
 registerPaymentMethodHandlers();
+registerInvoiceHandlers();
+registerPaymentHandlers();
+registerInvoiceFormatHandlers();

@@ -13,6 +13,13 @@ import PaymentMethodSettings from './pages/settings/payment-method-settings';
 import TaxTemplateSettings from './pages/taxes/tax-template-settings';
 import DiscountTemplateList from './pages/discounts/discount-template-list';
 import ItemList from './pages/items/item-list';
+import InvoiceList from './pages/invoices/invoice-list';
+import InvoiceForm from './pages/invoices/invoice-form';
+import InvoiceView from './pages/invoices/invoice-view';
+import InvoicePrintView from './pages/invoices/invoice-print';
+import PaymentList from './pages/payments/payment-list';
+import InvoiceFormatSettings from './pages/settings/invoice-format-settings';
+import InvoiceFormatForm from './pages/settings/invoice-format-form';
 
 export default function AppRoutes() {
   return (
@@ -33,6 +40,21 @@ export default function AppRoutes() {
         <Route path='tax-templates' element={<TaxTemplateSettings />} />
 
         <Route path='discounts' element={<DiscountTemplateList />} />
+
+        {/* Invoice routes */}
+        <Route path='invoices' element={<InvoiceList />} />
+        <Route path='invoices/new' element={<InvoiceForm />} />
+        <Route path='invoices/:id' element={<InvoiceView />} />
+        <Route path='invoices/:id/edit' element={<InvoiceForm />} />
+        <Route path='invoices/:id/print' element={<InvoicePrintView />} />
+
+        {/* Payment routes */}
+        <Route path='payments' element={<PaymentList />} />
+
+        {/* Invoice Format routes (top-level) */}
+        <Route path='formats' element={<InvoiceFormatSettings />} />
+        <Route path='formats/new' element={<InvoiceFormatForm />} />
+        <Route path='formats/:id/edit' element={<InvoiceFormatForm />} />
 
         {/* Settings routes */}
         <Route path='settings' element={<SettingsPage />}>

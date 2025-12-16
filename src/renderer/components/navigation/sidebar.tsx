@@ -20,6 +20,7 @@ import {
   Inventory2,
   ReceiptLong,
   LocalOffer,
+  Payments,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router';
 import { Routes } from '@/common/routes';
@@ -37,13 +38,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: Routes.Dashboard },
-    { text: 'Invoices', icon: <Receipt />, path: '/invoices' },
+    { text: 'Invoices', icon: <Receipt />, path: Routes.Invoices },
+    { text: 'Payments', icon: <Payments />, path: Routes.Payments },
     { text: 'Customers', icon: <People />, path: Routes.Customers },
     { text: 'Items', icon: <Inventory2 />, path: Routes.Items },
     { text: 'Taxes', icon: <ReceiptLong />, path: Routes.TaxTemplates },
     { text: 'Discounts', icon: <LocalOffer />, path: Routes.Discounts },
     { text: 'Reports', icon: <Assessment />, path: '/reports/general' },
-    { text: 'Formats', icon: <FormatPaint />, path: '/formats' },
+    { text: 'Formats', icon: <FormatPaint />, path: Routes.InvoiceFormats },
     { text: 'Settings', icon: <Settings />, path: Routes.Settings },
   ];
 
