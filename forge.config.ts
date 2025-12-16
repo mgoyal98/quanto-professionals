@@ -16,7 +16,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     name: appConfig.app.name,
     asar: true,
-    appCategoryType: appConfig.app.macCategory,
+    appCategoryType: appConfig.build.macCategory,
     icon: path.resolve(__dirname, 'assets/icon'),
     ignore: [
       /node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/,
@@ -26,25 +26,26 @@ const config: ForgeConfig = {
       /src\//,
       /vite\.config\..*/,
     ],
-    appBundleId: appConfig.app.bundleId,
-    executableName: appConfig.app.executableName,
+    appBundleId: appConfig.build.bundleId,
+    executableName: appConfig.build.executableName,
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      name: appConfig.app.name,
-      authors: appConfig.app.author,
-      description: appConfig.app.description,
+      name: appConfig.build.winName,
+      authors: appConfig.build.author,
+      description: appConfig.build.description,
       setupIcon: path.join(__dirname, 'assets/icon.ico'),
       // The GIF that plays during the background installation
       loadingGif: path.join(__dirname, 'assets/installing.gif'),
+      setupExe: appConfig.build.executableName,
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({
       options: {
         // Matches the executableName set in packagerConfig
-        bin: appConfig.app.executableName,
+        bin: appConfig.build.executableName,
         maintainer: appConfig.github.name,
         homepage: appConfig.github.repoUrl,
       },
