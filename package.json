@@ -1,7 +1,7 @@
 {
   "name": "quanto-professionals",
   "productName": "Quanto Professionals",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A modern, offline-first invoice management desktop application for service providers",
   "main": ".vite/build/main.js",
   "scripts": {
