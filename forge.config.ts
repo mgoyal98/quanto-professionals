@@ -34,6 +34,7 @@ const config: ForgeConfig = {
       optionsForFile: (filePath) => ({
         hardenedRuntime: true,
         entitlements: './entitlements.plist',
+        'signature-flags': 'library',
       }),
     },
     osxNotarize: {
