@@ -22,7 +22,6 @@ import {
   Receipt,
   People,
   Inventory2,
-  TrendingUp,
   Add,
   ArrowForward,
   Warning,
@@ -45,9 +44,7 @@ interface DashboardStats {
   totalInvoices: number;
   totalCustomers: number;
   totalItems: number;
-  totalRevenue: number;
   unpaidAmount: number;
-  paidInvoices: number;
   unpaidInvoices: number;
 }
 
@@ -55,9 +52,7 @@ const initialStats: DashboardStats = {
   totalInvoices: 0,
   totalCustomers: 0,
   totalItems: 0,
-  totalRevenue: 0,
   unpaidAmount: 0,
-  paidInvoices: 0,
   unpaidInvoices: 0,
 };
 
@@ -79,43 +74,33 @@ export default function Dashboard() {
     try {
       // Fetch all data in parallel
       const [invoicesResult, customersResult, itemsResult] = await Promise.all([
-        window.invoiceApi?.listInvoices({ limit: 100, isArchived: false }),
+        window.invoiceApi?.listInvoices({ limit: 5, isArchived: false }),
         window.customerApi?.listCustomers(),
-        window.itemApi?.listItems({ limit: 1000 }),
+        window.itemApi?.listItems({ limit: 1 }), // Just need the total count
       ]);
 
       const invoices = invoicesResult?.invoices ?? [];
       const customers = customersResult ?? [];
-      const items = itemsResult?.items ?? [];
 
-      // Calculate stats from invoices
-      const totalRevenue = invoices.reduce(
-        (sum, inv) => sum + inv.grandTotal,
-        0
-      );
+      // Calculate unpaid amount from recent invoices (approximation for alert)
       const unpaidAmount = invoices.reduce(
         (sum, inv) => sum + inv.dueAmount,
         0
       );
-      const paidInvoices = invoices.filter(
-        (inv) => inv.status === 'PAID'
-      ).length;
       const unpaidInvoices = invoices.filter(
         (inv) => inv.status === 'UNPAID' || inv.status === 'PARTIALLY_PAID'
       ).length;
 
       setStats({
-        totalInvoices: invoices.length,
+        totalInvoices: invoicesResult?.total ?? 0, // Use total from API response
         totalCustomers: customers.length,
-        totalItems: items.length,
-        totalRevenue,
+        totalItems: itemsResult?.total ?? 0, // Use total from API response
         unpaidAmount,
-        paidInvoices,
         unpaidInvoices,
       });
 
-      // Get 5 most recent invoices
-      setRecentInvoices(invoices.slice(0, 5));
+      // Recent invoices for display
+      setRecentInvoices(invoices);
     } catch (err) {
       setError(formatIpcError(err));
     } finally {
@@ -157,7 +142,7 @@ export default function Dashboard() {
       value: stats.totalInvoices,
       icon: <Receipt fontSize='large' />,
       color: '#009966',
-      subtitle: `${stats.paidInvoices} paid, ${stats.unpaidInvoices} pending`,
+      subtitle: 'All invoices',
     },
     {
       title: 'Total Customers',
@@ -172,14 +157,6 @@ export default function Dashboard() {
       icon: <Inventory2 fontSize='large' />,
       color: '#FF9800',
       subtitle: 'Products & services',
-    },
-    {
-      title: 'Total Revenue',
-      value: formatCurrency(stats.totalRevenue),
-      icon: <TrendingUp fontSize='large' />,
-      color: '#4CAF50',
-      subtitle: 'From all invoices',
-      isMonetary: true,
     },
   ];
 
@@ -274,7 +251,7 @@ export default function Dashboard() {
           </Typography>
           <Grid container spacing={2}>
             {statCards.map((stat) => (
-              <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={stat.title}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={stat.title}>
                 <Card
                   sx={{
                     height: '100%',
@@ -304,15 +281,7 @@ export default function Dashboard() {
                             animation='wave'
                           />
                         ) : (
-                          <Typography
-                            variant='h4'
-                            fontWeight='bold'
-                            sx={{
-                              fontFamily: stat.isMonetary
-                                ? 'monospace'
-                                : 'inherit',
-                            }}
-                          >
+                          <Typography variant='h4' fontWeight='bold'>
                             {stat.value}
                           </Typography>
                         )}
