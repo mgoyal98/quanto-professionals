@@ -22,7 +22,7 @@ export function seedInvoiceSeries() {
   if (existing.length === 0) {
     db.insert(invoiceSeriesTable)
       .values({
-        name: '1',
+        name: 'Default',
         isDefault: true,
         startWith: 1,
         nextNumber: 1,
@@ -326,4 +326,3 @@ export function registerInvoiceSeriesHandlers() {
     }
   );
 }
-
