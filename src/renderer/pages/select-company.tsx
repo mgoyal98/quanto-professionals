@@ -134,10 +134,19 @@ export default function SelectCompany() {
               </ListItemAvatar>
               <ListItemText
                 primary={company.name}
-                secondary={`Opened ${timeAgo.format(new Date(company.lastOpened))}`}
+                secondary={
+                  <>
+                    <Typography component='span' variant='caption' display='block'>
+                      {company.filePath}
+                    </Typography>
+                    <Typography component='span' variant='caption' color='text.secondary'>
+                      Opened {timeAgo.format(new Date(company.lastOpened))}
+                    </Typography>
+                  </>
+                }
                 slotProps={{
                   primary: { variant: 'subtitle1', fontWeight: 'medium' },
-                  secondary: { variant: 'caption' },
+                  secondary: { component: 'div' },
                 }}
               />
             </ListItemButton>
