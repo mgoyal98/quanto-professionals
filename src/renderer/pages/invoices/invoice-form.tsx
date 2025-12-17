@@ -1006,10 +1006,10 @@ export default function InvoiceForm() {
                     <TableCell sx={{ minWidth: 180 }}>Description</TableCell>
                     <TableCell sx={{ width: 120 }}>Qty</TableCell>
                     <TableCell sx={{ width: 100 }}>Unit</TableCell>
-                    <TableCell sx={{ width: 120, minWidth: 150 }}>
+                    <TableCell sx={{ width: 120, minWidth: 180 }}>
                       Rate
                     </TableCell>
-                    <TableCell align='right' sx={{ width: 130 }}>
+                    <TableCell align='right' sx={{ width: 140 }}>
                       Total
                     </TableCell>
                     <TableCell sx={{ width: 50 }}></TableCell>
