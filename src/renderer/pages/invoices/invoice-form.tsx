@@ -305,6 +305,9 @@ export default function InvoiceForm() {
       try {
         const invoice = await window.invoiceApi?.getInvoice(Number(id));
         if (invoice) {
+          // Fetch and add archived entities that are used in this invoice
+          // This ensures archived items still appear in dropdowns when editing
+          await ensureInvoiceEntitiesInLists(invoice);
           populateFormFromInvoice(invoice);
         }
       } catch (err) {
@@ -324,6 +327,135 @@ export default function InvoiceForm() {
     taxTemplates,
     invoiceFormats,
   ]);
+
+  // Helper to ensure archived entities used in the invoice are in the lookup lists
+  const ensureInvoiceEntitiesInLists = async (invoice: InvoiceWithDetails) => {
+    // Check and add archived customer
+    if (
+      invoice.customerId &&
+      !customers.find((c) => c.id === invoice.customerId)
+    ) {
+      const customer = await window.customerApi?.getCustomer(
+        invoice.customerId
+      );
+      if (customer) {
+        setCustomers((prev) => [...prev, customer]);
+      }
+    }
+
+    // Check and add archived invoice series
+    if (
+      invoice.invoiceSeriesId &&
+      !invoiceSeries.find((s) => s.id === invoice.invoiceSeriesId)
+    ) {
+      const series = await window.invoiceSeriesApi?.getInvoiceSeries(
+        invoice.invoiceSeriesId
+      );
+      if (series) {
+        setInvoiceSeries((prev) => [...prev, series]);
+      }
+    }
+
+    // Check and add archived payment method
+    if (
+      invoice.paymentMethodId &&
+      !paymentMethods.find((p) => p.id === invoice.paymentMethodId)
+    ) {
+      const method = await window.paymentMethodApi?.getPaymentMethod(
+        invoice.paymentMethodId
+      );
+      if (method) {
+        setPaymentMethods((prev) => [...prev, method]);
+      }
+    }
+
+    // Check and add archived invoice format
+    if (
+      invoice.invoiceFormatId &&
+      !invoiceFormats.find((f) => f.id === invoice.invoiceFormatId)
+    ) {
+      const format = await window.invoiceFormatApi?.getInvoiceFormat(
+        invoice.invoiceFormatId
+      );
+      if (format) {
+        setInvoiceFormats((prev) => [...prev, format]);
+      }
+    }
+
+    // Check and add archived items used in invoice line items
+    if (invoice.items) {
+      for (const item of invoice.items) {
+        if (item.itemId && !items.find((i) => i.id === item.itemId)) {
+          const fetchedItem = await window.itemApi?.getItem(item.itemId);
+          if (fetchedItem) {
+            setItems((prev) => [...prev, fetchedItem]);
+          }
+        }
+      }
+    }
+
+    // Collect all tax template IDs used in the invoice
+    const usedTaxTemplateIds = new Set<number>();
+
+    // From invoice items' taxesDiscounts
+    if (invoice.items) {
+      for (const item of invoice.items) {
+        if (item.taxesDiscounts) {
+          for (const td of item.taxesDiscounts) {
+            if (td.taxTemplateId) {
+              usedTaxTemplateIds.add(td.taxTemplateId);
+            }
+          }
+        }
+      }
+    }
+
+    // From invoice-level tax/discount entries
+    if (invoice.taxDiscountEntries) {
+      for (const entry of invoice.taxDiscountEntries) {
+        if (entry.taxTemplateId) {
+          usedTaxTemplateIds.add(entry.taxTemplateId);
+        }
+      }
+    }
+
+    // Fetch missing tax templates
+    const allTaxTemplates = [...taxTemplates, ...cessTemplates];
+    for (const taxId of usedTaxTemplateIds) {
+      if (!allTaxTemplates.find((t) => t.id === taxId)) {
+        const template = await window.taxTemplateApi?.getTaxTemplate(taxId);
+        if (template) {
+          if (template.taxType === 'CESS') {
+            setCessTemplates((prev) => [...prev, template]);
+          } else {
+            setTaxTemplates((prev) => [...prev, template]);
+          }
+        }
+      }
+    }
+
+    // Collect all discount template IDs used in the invoice
+    const usedDiscountTemplateIds = new Set<number>();
+
+    if (invoice.taxDiscountEntries) {
+      for (const entry of invoice.taxDiscountEntries) {
+        if (entry.discountTemplateId) {
+          usedDiscountTemplateIds.add(entry.discountTemplateId);
+        }
+      }
+    }
+
+    // Fetch missing discount templates
+    for (const discountId of usedDiscountTemplateIds) {
+      if (!discountTemplates.find((d) => d.id === discountId)) {
+        const template =
+          await window.discountTemplateApi?.getDiscountTemplate(discountId);
+        if (template) {
+          setDiscountTemplates((prev) => [...prev, template]);
+        }
+      }
+    }
+  };
 
   const populateFormFromInvoice = (invoice: InvoiceWithDetails) => {
     const customer = customers.find((c) => c.id === invoice.customerId);
