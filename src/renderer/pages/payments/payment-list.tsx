@@ -15,6 +15,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Typography,
@@ -24,6 +25,8 @@ import {
   Link as MuiLink,
 } from '@mui/material';
 import { Delete, Search, Visibility } from '@mui/icons-material';
+
+const DEFAULT_PAGE_SIZE = 10;
 import { useNavigate } from 'react-router';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -40,6 +43,7 @@ export default function PaymentListPage() {
   const { showSuccess, showError } = useNotification();
 
   const [payments, setPayments] = useState<PaymentWithDetails[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,16 +54,21 @@ export default function PaymentListPage() {
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
 
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+
   // Load data
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
         const [paymentsRes, methodsRes] = await Promise.all([
-          window.paymentApi?.listPayments({}),
+          window.paymentApi?.listPayments({ limit: pageSize, offset: 0 }),
           window.paymentMethodApi?.listPaymentMethods(),
         ]);
         setPayments(paymentsRes?.payments ?? []);
+        setTotalCount(paymentsRes?.total ?? 0);
         setPaymentMethods(methodsRes ?? []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load payments');
@@ -68,25 +77,29 @@ export default function PaymentListPage() {
       }
     };
     void loadData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Reload payments when filters change
+  // Reload payments when filters or pagination change
   useEffect(() => {
     const loadPayments = async () => {
       try {
-        const params: PaymentListParams = {};
+        const params: PaymentListParams = {
+          limit: pageSize,
+          offset: page * pageSize,
+        };
         if (selectedMethodId) params.paymentMethodId = selectedMethodId;
         if (dateFrom) params.dateFrom = dateFrom;
         if (dateTo) params.dateTo = dateTo;
 
         const res = await window.paymentApi?.listPayments(params);
         setPayments(res?.payments ?? []);
+        setTotalCount(res?.total ?? 0);
       } catch (err) {
         showError(err instanceof Error ? err.message : 'Failed to load payments');
       }
     };
     void loadPayments();
-  }, [selectedMethodId, dateFrom, dateTo, showError]);
+  }, [selectedMethodId, dateFrom, dateTo, page, pageSize, showError]);
 
   // Filter by search locally
   const filteredPayments = useMemo(() => {
@@ -99,6 +112,15 @@ export default function PaymentListPage() {
       return matchesInvoice || matchesCustomer || matchesRef;
     });
   }, [payments, search]);
+
+  // Get paginated payments for display
+  // When search is active, we paginate the filtered results client-side
+  const displayedPayments = useMemo(() => {
+    if (!search) return filteredPayments; // Server already paginated
+    // Client-side pagination for search results
+    const startIndex = page * pageSize;
+    return filteredPayments.slice(startIndex, startIndex + pageSize);
+  }, [filteredPayments, search, page, pageSize]);
 
   // Summary calculations
   const totalAmount = useMemo(
@@ -113,11 +135,31 @@ export default function PaymentListPage() {
 
     try {
       await window.paymentApi?.deletePayment(payment.id);
-      setPayments(payments.filter((p) => p.id !== payment.id));
+      // Reload the current page
+      const params: PaymentListParams = {
+        limit: pageSize,
+        offset: page * pageSize,
+      };
+      if (selectedMethodId) params.paymentMethodId = selectedMethodId;
+      if (dateFrom) params.dateFrom = dateFrom;
+      if (dateTo) params.dateTo = dateTo;
+
+      const res = await window.paymentApi?.listPayments(params);
+      setPayments(res?.payments ?? []);
+      setTotalCount(res?.total ?? 0);
       showSuccess('Payment deleted successfully');
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Failed to delete payment');
     }
+  };
+
+  const handlePageChange = (_event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handlePageSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPageSize(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const handleViewInvoice = (invoiceId: number) => {
@@ -182,20 +224,29 @@ export default function PaymentListPage() {
             <DatePicker
               label='From Date'
               value={dateFrom}
-              onChange={setDateFrom}
+              onChange={(newDate) => {
+                setDateFrom(newDate);
+                setPage(0);
+              }}
               slotProps={{ textField: { size: 'small', sx: { width: 160 } } }}
             />
             <DatePicker
               label='To Date'
               value={dateTo}
-              onChange={setDateTo}
+              onChange={(newDate) => {
+                setDateTo(newDate);
+                setPage(0);
+              }}
               slotProps={{ textField: { size: 'small', sx: { width: 160 } } }}
             />
             <FormControl size='small' sx={{ minWidth: 160 }}>
               <InputLabel>Payment Method</InputLabel>
               <Select<number | ''>
                 value={selectedMethodId}
-                onChange={(e) => setSelectedMethodId(e.target.value as number | '')}
+                onChange={(e) => {
+                  setSelectedMethodId(e.target.value as number | '');
+                  setPage(0);
+                }}
                 label='Payment Method'
               >
                 <MenuItem value=''>All Methods</MenuItem>
@@ -224,7 +275,7 @@ export default function PaymentListPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredPayments.length === 0 ? (
+              {displayedPayments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} align='center'>
                     <Typography color='text.secondary' sx={{ py: 4 }}>
@@ -233,7 +284,7 @@ export default function PaymentListPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredPayments.map((payment) => (
+                displayedPayments.map((payment) => (
                   <TableRow key={payment.id} hover>
                     <TableCell>{formatPaymentDate(payment.paymentDate)}</TableCell>
                     <TableCell>
@@ -273,9 +324,19 @@ export default function PaymentListPage() {
                   </TableRow>
                 ))
               )}
-            </TableBody>
+              </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          component='div'
+          count={search ? filteredPayments.length : totalCount}
+          page={page}
+          onPageChange={handlePageChange}
+          rowsPerPage={pageSize}
+          onRowsPerPageChange={handlePageSizeChange}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+        />
       </Box>
     </LocalizationProvider>
   );

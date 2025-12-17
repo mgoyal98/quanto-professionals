@@ -15,6 +15,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   Tabs,
   TextField,
@@ -48,53 +49,97 @@ import { Routes } from '@/common/routes';
 import CancelInvoiceDialog from '@/components/cancel-invoice-dialog';
 
 type InvoicesTab = 'active' | 'archived';
+const DEFAULT_PAGE_SIZE = 10;
 
 export default function InvoiceList() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
   const [activeTab, setActiveTab] = useState<InvoicesTab>('active');
-  const [activeInvoices, setActiveInvoices] = useState<InvoiceWithDetails[]>([]);
-  const [archivedInvoices, setArchivedInvoices] = useState<InvoiceWithDetails[]>([]);
+  const [activeInvoices, setActiveInvoices] = useState<InvoiceWithDetails[]>(
+    []
+  );
+  const [archivedInvoices, setArchivedInvoices] = useState<
+    InvoiceWithDetails[]
+  >([]);
+  const [activeTotalCount, setActiveTotalCount] = useState(0);
+  const [archivedTotalCount, setArchivedTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [invoiceToCancel, setInvoiceToCancel] = useState<InvoiceWithDetails | null>(null);
+  const [invoiceToCancel, setInvoiceToCancel] =
+    useState<InvoiceWithDetails | null>(null);
 
-  const loadInvoices = useCallback(async (search?: string) => {
-    if (!window.invoiceApi) {
-      setError('Invoice API is not available.');
-      setLoading(false);
-      return;
-    }
+  // Pagination state
+  const [activePage, setActivePage] = useState(0);
+  const [archivedPage, setArchivedPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-    try {
-      const [activeResult, archivedResult] = await Promise.all([
-        window.invoiceApi.listInvoices({ search, isArchived: false }),
-        window.invoiceApi.listInvoices({ search, isArchived: true }),
-      ]);
-      setActiveInvoices(activeResult.invoices);
-      setArchivedInvoices(archivedResult.invoices);
-    } catch (err) {
-      setError(formatIpcError(err));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const loadInvoices = useCallback(
+    async (options?: {
+      search?: string;
+      activePageNum?: number;
+      archivedPageNum?: number;
+      pageSizeNum?: number;
+    }) => {
+      if (!window.invoiceApi) {
+        setError('Invoice API is not available.');
+        setLoading(false);
+        return;
+      }
+
+      const search = options?.search;
+      const currentActivePageNum = options?.activePageNum ?? activePage;
+      const currentArchivedPageNum = options?.archivedPageNum ?? archivedPage;
+      const currentPageSize = options?.pageSizeNum ?? pageSize;
+
+      try {
+        const [activeResult, archivedResult] = await Promise.all([
+          window.invoiceApi.listInvoices({
+            search,
+            isArchived: false,
+            limit: currentPageSize,
+            offset: currentActivePageNum * currentPageSize,
+          }),
+          window.invoiceApi.listInvoices({
+            search,
+            isArchived: true,
+            limit: currentPageSize,
+            offset: currentArchivedPageNum * currentPageSize,
+          }),
+        ]);
+        setActiveInvoices(activeResult.invoices);
+        setArchivedInvoices(archivedResult.invoices);
+        setActiveTotalCount(activeResult.total);
+        setArchivedTotalCount(archivedResult.total);
+      } catch (err) {
+        setError(formatIpcError(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [activePage, archivedPage, pageSize]
+  );
 
   useEffect(() => {
     void loadInvoices();
   }, [loadInvoices]);
 
-  // Debounced search
+  // Debounced search - reset to first page when search changes
   useEffect(() => {
     const timer = setTimeout(() => {
-      void loadInvoices(searchQuery || undefined);
+      setActivePage(0);
+      setArchivedPage(0);
+      void loadInvoices({
+        search: searchQuery || undefined,
+        activePageNum: 0,
+        archivedPageNum: 0,
+      });
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, loadInvoices]);
+  }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleArchive = async (id: number, invoiceNumber: string) => {
     if (!window.invoiceApi) return;
@@ -102,11 +147,13 @@ export default function InvoiceList() {
     try {
       const result = await window.invoiceApi.archiveInvoice(id, invoiceNumber);
       if (result) {
-        void loadInvoices(searchQuery || undefined);
+        void loadInvoices({ search: searchQuery || undefined });
         showSuccess('Invoice archived successfully');
       }
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to archive invoice.');
+      showError(
+        err instanceof Error ? err.message : 'Failed to archive invoice.'
+      );
     }
   };
 
@@ -116,28 +163,68 @@ export default function InvoiceList() {
     try {
       const result = await window.invoiceApi.restoreInvoice(id, invoiceNumber);
       if (result) {
-        void loadInvoices(searchQuery || undefined);
+        void loadInvoices({ search: searchQuery || undefined });
         showSuccess('Invoice restored successfully');
       }
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to restore invoice.');
+      showError(
+        err instanceof Error ? err.message : 'Failed to restore invoice.'
+      );
     }
   };
 
-  const handleUpdateStatus = async (id: number, status: InvoiceStatus, cancelReason?: string) => {
+  const handleUpdateStatus = async (
+    id: number,
+    status: InvoiceStatus,
+    cancelReason?: string
+  ) => {
     if (!window.invoiceApi) return;
 
     try {
       await window.invoiceApi.updateInvoiceStatus({ id, status, cancelReason });
-      void loadInvoices(searchQuery || undefined);
+      void loadInvoices({ search: searchQuery || undefined });
       showSuccess(`Invoice ${status.toLowerCase()}`);
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Failed to update invoice status.');
+      showError(
+        err instanceof Error ? err.message : 'Failed to update invoice status.'
+      );
     }
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: InvoicesTab) => {
+  const handleTabChange = (
+    _event: React.SyntheticEvent,
+    newValue: InvoicesTab
+  ) => {
     setActiveTab(newValue);
+  };
+
+  const handlePageChange = (_event: unknown, newPage: number) => {
+    if (activeTab === 'active') {
+      setActivePage(newPage);
+      void loadInvoices({
+        search: searchQuery || undefined,
+        activePageNum: newPage,
+      });
+    } else {
+      setArchivedPage(newPage);
+      void loadInvoices({
+        search: searchQuery || undefined,
+        archivedPageNum: newPage,
+      });
+    }
+  };
+
+  const handlePageSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPageSize = parseInt(event.target.value, 10);
+    setPageSize(newPageSize);
+    setActivePage(0);
+    setArchivedPage(0);
+    void loadInvoices({
+      search: searchQuery || undefined,
+      activePageNum: 0,
+      archivedPageNum: 0,
+      pageSizeNum: newPageSize,
+    });
   };
 
   const handleClearSearch = () => {
@@ -162,7 +249,11 @@ export default function InvoiceList() {
     setInvoiceToCancel(null);
   };
 
-  const currentInvoices = activeTab === 'active' ? activeInvoices : archivedInvoices;
+  const currentInvoices =
+    activeTab === 'active' ? activeInvoices : archivedInvoices;
+  const currentTotalCount =
+    activeTab === 'active' ? activeTotalCount : archivedTotalCount;
+  const currentPage = activeTab === 'active' ? activePage : archivedPage;
 
   const getEmptyMessage = () => {
     if (searchQuery) {
@@ -175,7 +266,14 @@ export default function InvoiceList() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: 300,
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -188,7 +286,13 @@ export default function InvoiceList() {
   return (
     <Box>
       <Stack spacing={3}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <Box>
             <Typography variant='h4' gutterBottom>
               Invoices
@@ -197,7 +301,11 @@ export default function InvoiceList() {
               Manage your invoices and track payments
             </Typography>
           </Box>
-          <Button variant='contained' startIcon={<Add />} onClick={() => navigate(Routes.InvoiceCreate)}>
+          <Button
+            variant='contained'
+            startIcon={<Add />}
+            onClick={() => navigate(Routes.InvoiceCreate)}
+          >
             New Invoice
           </Button>
         </Box>
@@ -220,9 +328,21 @@ export default function InvoiceList() {
               px: 2,
             }}
           >
-            <Tabs value={activeTab} onChange={handleTabChange} aria-label='invoices tabs'>
-              <Tab label={`Active (${activeInvoices.length})`} value='active' sx={{ minWidth: 100 }} />
-              <Tab label={`Archived (${archivedInvoices.length})`} value='archived' sx={{ minWidth: 100 }} />
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              aria-label='invoices tabs'
+            >
+              <Tab
+                label={`Active (${activeTotalCount})`}
+                value='active'
+                sx={{ minWidth: 100 }}
+              />
+              <Tab
+                label={`Archived (${archivedTotalCount})`}
+                value='archived'
+                sx={{ minWidth: 100 }}
+              />
             </Tabs>
 
             <TextField
@@ -250,7 +370,11 @@ export default function InvoiceList() {
             />
           </Box>
 
-          <TableContainer component={Paper} variant='outlined' sx={{ m: 2, width: 'auto' }}>
+          <TableContainer
+            component={Paper}
+            variant='outlined'
+            sx={{ m: 2, width: 'auto' }}
+          >
             <Table>
               <TableHead>
                 <TableRow>
@@ -267,7 +391,11 @@ export default function InvoiceList() {
                 {currentInvoices.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} align='center'>
-                      <Typography variant='body2' color='text.secondary' sx={{ py: 3 }}>
+                      <Typography
+                        variant='body2'
+                        color='text.secondary'
+                        sx={{ py: 3 }}
+                      >
                         {getEmptyMessage()}
                       </Typography>
                     </TableCell>
@@ -288,33 +416,55 @@ export default function InvoiceList() {
                           </Typography>
                         )}
                       </TableCell>
-                      <TableCell>{formatInvoiceDate(invoice.invoiceDate)}</TableCell>
+                      <TableCell>
+                        {formatInvoiceDate(invoice.invoiceDate)}
+                      </TableCell>
                       <TableCell align='right'>
-                        <Typography fontFamily='monospace'>{formatCurrency(invoice.grandTotal)}</Typography>
+                        <Typography fontFamily='monospace'>
+                          {formatCurrency(invoice.grandTotal)}
+                        </Typography>
                       </TableCell>
                       <TableCell align='right'>
                         <Typography
                           fontFamily='monospace'
-                          color={invoice.dueAmount > 0 ? 'error.main' : 'success.main'}
+                          color={
+                            invoice.dueAmount > 0
+                              ? 'error.main'
+                              : 'success.main'
+                          }
                         >
                           {formatCurrency(invoice.dueAmount)}
                         </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={INVOICE_STATUS_LABELS[invoice.status as InvoiceStatus]}
-                          color={INVOICE_STATUS_COLORS[invoice.status as InvoiceStatus]}
+                          label={
+                            INVOICE_STATUS_LABELS[
+                              invoice.status as InvoiceStatus
+                            ]
+                          }
+                          color={
+                            INVOICE_STATUS_COLORS[
+                              invoice.status as InvoiceStatus
+                            ]
+                          }
                           size='small'
                         />
                       </TableCell>
                       <TableCell align='right'>
-                        <Stack direction='row' spacing={0.5} justifyContent='flex-end'>
+                        <Stack
+                          direction='row'
+                          spacing={0.5}
+                          justifyContent='flex-end'
+                        >
                           {activeTab === 'active' ? (
                             <>
                               <Tooltip title='View'>
                                 <IconButton
                                   size='small'
-                                  onClick={() => navigate(`/invoices/${invoice.id}`)}
+                                  onClick={() =>
+                                    navigate(`/invoices/${invoice.id}`)
+                                  }
                                   color='primary'
                                 >
                                   <Visibility />
@@ -324,28 +474,38 @@ export default function InvoiceList() {
                                 <Tooltip title='Edit'>
                                   <IconButton
                                     size='small'
-                                    onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
+                                    onClick={() =>
+                                      navigate(`/invoices/${invoice.id}/edit`)
+                                    }
                                     color='primary'
                                   >
                                     <Edit />
                                   </IconButton>
                                 </Tooltip>
                               )}
-                              {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
-                                <Tooltip title='Cancel'>
-                                  <IconButton
-                                    size='small'
-                                    onClick={() => handleOpenCancelDialog(invoice)}
-                                    color='error'
-                                  >
-                                    <Cancel />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
+                              {invoice.status !== 'PAID' &&
+                                invoice.status !== 'CANCELLED' && (
+                                  <Tooltip title='Cancel'>
+                                    <IconButton
+                                      size='small'
+                                      onClick={() =>
+                                        handleOpenCancelDialog(invoice)
+                                      }
+                                      color='error'
+                                    >
+                                      <Cancel />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
                               <Tooltip title='Archive'>
                                 <IconButton
                                   size='small'
-                                  onClick={() => handleArchive(invoice.id, invoice.invoiceNumber)}
+                                  onClick={() =>
+                                    handleArchive(
+                                      invoice.id,
+                                      invoice.invoiceNumber
+                                    )
+                                  }
                                   color='warning'
                                 >
                                   <Archive />
@@ -356,7 +516,12 @@ export default function InvoiceList() {
                             <Tooltip title='Restore'>
                               <IconButton
                                 size='small'
-                                onClick={() => handleRestore(invoice.id, invoice.invoiceNumber)}
+                                onClick={() =>
+                                  handleRestore(
+                                    invoice.id,
+                                    invoice.invoiceNumber
+                                  )
+                                }
                                 color='success'
                               >
                                 <Restore />
@@ -371,6 +536,17 @@ export default function InvoiceList() {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <TablePagination
+            component='div'
+            count={currentTotalCount}
+            page={currentPage}
+            onPageChange={handlePageChange}
+            rowsPerPage={pageSize}
+            onRowsPerPageChange={handlePageSizeChange}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            sx={{ borderTop: 1, borderColor: 'divider' }}
+          />
         </Card>
       </Stack>
     </Box>

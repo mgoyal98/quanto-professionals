@@ -15,6 +15,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   Tabs,
   TextField,
@@ -36,6 +37,7 @@ import { useNotification } from '@/providers/notification';
 import ItemForm from './item-form';
 
 type ItemsTab = 'active' | 'archived';
+const DEFAULT_PAGE_SIZE = 10;
 
 type ItemModalState = {
   open: boolean;
@@ -51,48 +53,75 @@ export default function ItemList() {
   const [archivedItems, setArchivedItems] = useState<ItemWithTaxTemplates[]>(
     []
   );
+  const [activeTotalCount, setActiveTotalCount] = useState(0);
+  const [archivedTotalCount, setArchivedTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Pagination state
+  const [activePage, setActivePage] = useState(0);
+  const [archivedPage, setArchivedPage] = useState(0);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   const [itemModal, setItemModal] = useState<ItemModalState>({
     open: false,
     mode: 'create',
   });
 
-  const loadItems = useCallback(async (search?: string) => {
-    if (!window.itemApi) {
-      setError('Item API is not available.');
-      setLoading(false);
-      return;
-    }
+  const loadItems = useCallback(
+    async (options?: { search?: string; activePageNum?: number; archivedPageNum?: number; pageSizeNum?: number }) => {
+      if (!window.itemApi) {
+        setError('Item API is not available.');
+        setLoading(false);
+        return;
+      }
 
-    try {
-      const [activeResult, archivedResult] = await Promise.all([
-        window.itemApi.listItems({ search }),
-        window.itemApi.listArchivedItems({ search }),
-      ]);
-      setActiveItems(activeResult.items);
-      setArchivedItems(archivedResult.items);
-    } catch (err) {
-      setError(formatIpcError(err));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      const search = options?.search;
+      const currentActivePageNum = options?.activePageNum ?? activePage;
+      const currentArchivedPageNum = options?.archivedPageNum ?? archivedPage;
+      const currentPageSize = options?.pageSizeNum ?? pageSize;
+
+      try {
+        const [activeResult, archivedResult] = await Promise.all([
+          window.itemApi.listItems({
+            search,
+            limit: currentPageSize,
+            offset: currentActivePageNum * currentPageSize,
+          }),
+          window.itemApi.listArchivedItems({
+            search,
+            limit: currentPageSize,
+            offset: currentArchivedPageNum * currentPageSize,
+          }),
+        ]);
+        setActiveItems(activeResult.items);
+        setArchivedItems(archivedResult.items);
+        setActiveTotalCount(activeResult.total);
+        setArchivedTotalCount(archivedResult.total);
+      } catch (err) {
+        setError(formatIpcError(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [activePage, archivedPage, pageSize]
+  );
 
   useEffect(() => {
     void loadItems();
   }, [loadItems]);
 
-  // Debounced search
+  // Debounced search - reset to first page when search changes
   useEffect(() => {
     const timer = setTimeout(() => {
-      void loadItems(searchQuery || undefined);
+      setActivePage(0);
+      setArchivedPage(0);
+      void loadItems({ search: searchQuery || undefined, activePageNum: 0, archivedPageNum: 0 });
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, loadItems]);
+  }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOpenCreateModal = () => {
     setItemModal({ open: true, mode: 'create' });
@@ -107,7 +136,7 @@ export default function ItemList() {
   };
 
   const handleSuccess = () => {
-    void loadItems(searchQuery || undefined);
+    void loadItems({ search: searchQuery || undefined });
     handleCloseModal();
   };
 
@@ -117,7 +146,7 @@ export default function ItemList() {
     try {
       const result = await window.itemApi.archiveItem(id, name);
       if (result) {
-        void loadItems(searchQuery || undefined);
+        void loadItems({ search: searchQuery || undefined });
         showSuccess('Item archived successfully');
       }
     } catch (err) {
@@ -131,7 +160,7 @@ export default function ItemList() {
     try {
       const result = await window.itemApi.restoreItem(id, name);
       if (result) {
-        void loadItems(searchQuery || undefined);
+        void loadItems({ search: searchQuery || undefined });
         showSuccess('Item restored successfully');
       }
     } catch (err) {
@@ -146,11 +175,31 @@ export default function ItemList() {
     setActiveTab(newValue);
   };
 
+  const handlePageChange = (_event: unknown, newPage: number) => {
+    if (activeTab === 'active') {
+      setActivePage(newPage);
+      void loadItems({ search: searchQuery || undefined, activePageNum: newPage });
+    } else {
+      setArchivedPage(newPage);
+      void loadItems({ search: searchQuery || undefined, archivedPageNum: newPage });
+    }
+  };
+
+  const handlePageSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPageSize = parseInt(event.target.value, 10);
+    setPageSize(newPageSize);
+    setActivePage(0);
+    setArchivedPage(0);
+    void loadItems({ search: searchQuery || undefined, activePageNum: 0, archivedPageNum: 0, pageSizeNum: newPageSize });
+  };
+
   const handleClearSearch = () => {
     setSearchQuery('');
   };
 
   const currentItems = activeTab === 'active' ? activeItems : archivedItems;
+  const currentTotalCount = activeTab === 'active' ? activeTotalCount : archivedTotalCount;
+  const currentPage = activeTab === 'active' ? activePage : archivedPage;
 
   const getEmptyMessage = () => {
     if (searchQuery) {
@@ -224,12 +273,12 @@ export default function ItemList() {
               aria-label='items tabs'
             >
               <Tab
-                label={`Active (${activeItems.length})`}
+                label={`Active (${activeTotalCount})`}
                 value='active'
                 sx={{ minWidth: 100 }}
               />
               <Tab
-                label={`Archived (${archivedItems.length})`}
+                label={`Archived (${archivedTotalCount})`}
                 value='archived'
                 sx={{ minWidth: 100 }}
               />
@@ -416,6 +465,17 @@ export default function ItemList() {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <TablePagination
+            component='div'
+            count={currentTotalCount}
+            page={currentPage}
+            onPageChange={handlePageChange}
+            rowsPerPage={pageSize}
+            onRowsPerPageChange={handlePageSizeChange}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            sx={{ borderTop: 1, borderColor: 'divider' }}
+          />
         </Card>
       </Stack>
 
