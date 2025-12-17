@@ -89,7 +89,8 @@ export default function InvoiceList() {
         return;
       }
 
-      const search = options?.search;
+      // Use searchQuery from state if not explicitly passed
+      const search = options?.search !== undefined ? options.search : (searchQuery || undefined);
       const currentActivePageNum = options?.activePageNum ?? activePage;
       const currentArchivedPageNum = options?.archivedPageNum ?? archivedPage;
       const currentPageSize = options?.pageSizeNum ?? pageSize;
@@ -119,12 +120,13 @@ export default function InvoiceList() {
         setLoading(false);
       }
     },
-    [activePage, archivedPage, pageSize]
+    [activePage, archivedPage, pageSize, searchQuery]
   );
 
+  // Initial load only
   useEffect(() => {
     void loadInvoices();
-  }, [loadInvoices]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Debounced search - reset to first page when search changes
   useEffect(() => {
