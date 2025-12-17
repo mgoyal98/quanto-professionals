@@ -136,7 +136,7 @@ export const DEFAULT_HTML_TEMPLATE = `<% if (invoice.status === 'CANCELLED') { %
 
   <tr>
     <td colspan="4">&nbsp;</td>
-    <td class="align-center bold">
+    <td class="align-center" style="width:15%">
       <% if (invoice.status === 'PAID') { %>Paid<% } else if (invoice.status === 'PARTIALLY_PAID') { %>Partially Paid<% } else if (invoice.status === 'UNPAID') { %>Unpaid<% } else if (invoice.status === 'CANCELLED') { %><span class="status-cancelled">Cancelled</span><% } %>
     </td>
   </tr>
@@ -472,7 +472,7 @@ export const NON_GST_HTML_TEMPLATE = `<% if (invoice.status === 'CANCELLED') { %
 
   <tr>
     <td colspan="3">&nbsp;</td>
-    <td class="align-center bold">
+    <td class="align-center" style="width:15%">
       <% if (invoice.status === 'PAID') { %>Paid<% } else if (invoice.status === 'PARTIALLY_PAID') { %>Partially Paid<% } else if (invoice.status === 'UNPAID') { %>Unpaid<% } else if (invoice.status === 'CANCELLED') { %><span class="status-cancelled">Cancelled</span><% } %>
     </td>
   </tr>
