@@ -32,4 +32,3 @@ export const invoiceFormatsTable = sqliteTable('invoice_formats', {
     .notNull()
     .default(sql`(unixepoch())`),
 });
-

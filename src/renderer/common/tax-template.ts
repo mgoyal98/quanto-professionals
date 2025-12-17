@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
 export const TAX_TYPES = ['GST', 'CESS', 'CUSTOM'] as const;
+export const TAX_RATE_TYPES = ['PERCENT', 'AMOUNT'] as const;
+
+export const TAX_RATE_TYPE_LABELS: Record<(typeof TAX_RATE_TYPES)[number], string> = {
+  PERCENT: 'Percentage (%)',
+  AMOUNT: 'Fixed Amount (₹)',
+};
 
 export const taxTemplateFormSchema = z.object({
   name: z
@@ -9,8 +15,8 @@ export const taxTemplateFormSchema = z.object({
     .max(50, 'Name must be less than 50 characters'),
   rate: z
     .number()
-    .min(0, 'Rate must be at least 0')
-    .max(100, 'Rate cannot exceed 100%'),
+    .min(0, 'Rate must be at least 0'),
+  rateType: z.enum(TAX_RATE_TYPES).default('PERCENT'),
   taxType: z.enum(TAX_TYPES),
   description: z
     .string()
@@ -18,7 +24,19 @@ export const taxTemplateFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   isDefault: z.boolean(),
-});
+}).refine(
+  (data) => {
+    // For PERCENT type, rate cannot exceed 100
+    if (data.rateType === 'PERCENT' && data.rate > 100) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Percentage rate cannot exceed 100%',
+    path: ['rate'],
+  }
+);
 
 export type TaxTemplateFormValues = z.infer<typeof taxTemplateFormSchema>;
 

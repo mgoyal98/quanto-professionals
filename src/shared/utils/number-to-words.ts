@@ -165,4 +165,3 @@ export function numberToWordsIndian(amount: number): string {
 export function numberToWords(num: number): string {
   return convertWholeNumber(num);
 }
-

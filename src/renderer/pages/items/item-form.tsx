@@ -299,7 +299,11 @@ export default function ItemForm({
                     </MenuItem>
                     {taxTemplates.map((template) => (
                       <MenuItem key={template.id} value={template.id}>
-                        {template.name} ({template.rate}%)
+                        {template.name} (
+                        {template.rateType === 'AMOUNT'
+                          ? `₹${template.rate}`
+                          : `${template.rate}%`}
+                        )
                       </MenuItem>
                     ))}
                   </Select>

@@ -48,7 +48,9 @@ export default function ItemList() {
 
   const [activeTab, setActiveTab] = useState<ItemsTab>('active');
   const [activeItems, setActiveItems] = useState<ItemWithTaxTemplates[]>([]);
-  const [archivedItems, setArchivedItems] = useState<ItemWithTaxTemplates[]>([]);
+  const [archivedItems, setArchivedItems] = useState<ItemWithTaxTemplates[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -137,7 +139,10 @@ export default function ItemList() {
     }
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: ItemsTab) => {
+  const handleTabChange = (
+    _event: React.SyntheticEvent,
+    newValue: ItemsTab
+  ) => {
     setActiveTab(newValue);
   };
 
@@ -290,7 +295,9 @@ export default function ItemList() {
                     <TableRow key={item.id} hover>
                       <TableCell>
                         <Box>
-                          <Typography fontWeight='medium'>{item.name}</Typography>
+                          <Typography fontWeight='medium'>
+                            {item.name}
+                          </Typography>
                           {item.description && (
                             <Typography
                               variant='body2'
@@ -308,7 +315,10 @@ export default function ItemList() {
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Typography fontFamily='monospace' color='text.secondary'>
+                        <Typography
+                          fontFamily='monospace'
+                          color='text.secondary'
+                        >
                           {item.hsnCode || '-'}
                         </Typography>
                       </TableCell>
@@ -327,7 +337,11 @@ export default function ItemList() {
                       <TableCell>
                         {item.taxTemplate ? (
                           <Chip
-                            label={`${item.taxTemplate.name} (${item.taxTemplate.rate}%)`}
+                            label={`${item.taxTemplate.name} (${
+                              item.taxTemplate.rateType === 'AMOUNT'
+                                ? `₹${item.taxTemplate.rate}`
+                                : `${item.taxTemplate.rate}%`
+                            })`}
                             size='small'
                             color='primary'
                             variant='outlined'
@@ -385,7 +399,9 @@ export default function ItemList() {
                             <Tooltip title='Restore'>
                               <IconButton
                                 size='small'
-                                onClick={() => handleRestore(item.id, item.name)}
+                                onClick={() =>
+                                  handleRestore(item.id, item.name)
+                                }
                                 color='success'
                               >
                                 <Restore />
@@ -413,4 +429,3 @@ export default function ItemList() {
     </Box>
   );
 }
-

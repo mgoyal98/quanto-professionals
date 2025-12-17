@@ -1,0 +1,1 @@
+ALTER TABLE `tax_templates` ADD `rateType` text DEFAULT 'PERCENT' NOT NULL;

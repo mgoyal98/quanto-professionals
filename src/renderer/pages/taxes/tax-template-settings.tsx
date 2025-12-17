@@ -313,7 +313,9 @@ export default function TaxTemplateSettings() {
                           </TableCell>
                           <TableCell align='right'>
                             <Typography fontFamily='monospace'>
-                              {template.rate}%
+                              {template.taxType === 'CUSTOM' && template.rateType === 'AMOUNT'
+                                ? `₹${template.rate}`
+                                : `${template.rate}%`}
                             </Typography>
                           </TableCell>
                           <TableCell>

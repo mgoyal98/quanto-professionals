@@ -30,6 +30,7 @@ import {
   recalculateInvoiceStatus,
   InvoiceStatus,
   InvoiceTaxDiscountInput,
+  RateType,
 } from '@shared/invoice';
 import { formatInvoiceNumber } from '@shared/invoice-series';
 import { roundToTwo } from '@shared/tax-template';
@@ -189,13 +190,18 @@ function createInvoice(data: CreateInvoiceRequest): InvoiceWithDetails {
           .where(eq(taxTemplatesTable.id, data.additionalTaxTemplateId))
           .get()
       : null;
+    const rateType = (taxTemplate?.rateType as RateType) || 'PERCENT';
+    const rate = taxTemplate?.rate ?? data.additionalTaxRate ?? 0;
     taxDiscountInputs.push({
       entryType: 'TAX',
       taxTemplateId: data.additionalTaxTemplateId ?? null,
       name:
-        taxTemplate?.name ?? `Additional Tax @ ${data.additionalTaxRate ?? 0}%`,
-      rateType: 'PERCENT',
-      rate: taxTemplate?.rate ?? data.additionalTaxRate ?? 0,
+        taxTemplate?.name ??
+        (rateType === 'AMOUNT'
+          ? `Additional Tax ₹${rate}`
+          : `Additional Tax @ ${rate}%`),
+      rateType,
+      rate,
       applicationMode: 'AFTER_TAX',
       sortOrder: 0,
     });
@@ -497,14 +503,18 @@ function updateInvoice(
             .where(eq(taxTemplatesTable.id, data.additionalTaxTemplateId))
             .get()
         : null;
+      const rateType = (taxTemplate?.rateType as RateType) || 'PERCENT';
+      const rate = taxTemplate?.rate ?? data.additionalTaxRate ?? 0;
       taxDiscountInputs.push({
         entryType: 'TAX',
         taxTemplateId: data.additionalTaxTemplateId ?? null,
         name:
           taxTemplate?.name ??
-          `Additional Tax @ ${data.additionalTaxRate ?? 0}%`,
-        rateType: 'PERCENT',
-        rate: taxTemplate?.rate ?? data.additionalTaxRate ?? 0,
+          (rateType === 'AMOUNT'
+            ? `Additional Tax ₹${rate}`
+            : `Additional Tax @ ${rate}%`),
+        rateType,
+        rate,
         applicationMode: 'AFTER_TAX',
         sortOrder: 0,
       });

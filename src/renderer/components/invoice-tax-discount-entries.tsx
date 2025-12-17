@@ -141,7 +141,7 @@ export default function InvoiceTaxDiscountEntries({
             taxTemplateId: taxTemplate.id,
             discountTemplateId: null,
             name: taxTemplate.name,
-            rateType: 'PERCENT' as RateType,
+            rateType: (taxTemplate.rateType as RateType) || 'PERCENT',
             rate: taxTemplate.rate,
           };
         } else {
@@ -263,36 +263,13 @@ export default function InvoiceTaxDiscountEntries({
                             entry.entryType
                           )
                         }
-                        freeSolo
-                        inputValue={entry.name}
-                        onInputChange={(_, value, reason) => {
-                          if (reason === 'input') {
-                            handleEntryChange(entry.id, 'name', value);
-                            // Clear template reference when typing custom name
-                            if (
-                              entry.taxTemplateId ||
-                              entry.discountTemplateId
-                            ) {
-                              handleEntryChange(
-                                entry.id,
-                                'taxTemplateId',
-                                null
-                              );
-                              handleEntryChange(
-                                entry.id,
-                                'discountTemplateId',
-                                null
-                              );
-                            }
-                          }
-                        }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
                             placeholder={
                               entry.entryType === 'TAX'
-                                ? 'Select tax or type name'
-                                : 'Select discount or type name'
+                                ? 'Select tax'
+                                : 'Select discount'
                             }
                           />
                         )}
@@ -305,7 +282,10 @@ export default function InvoiceTaxDiscountEntries({
                                 color='text.secondary'
                               >
                                 {entry.entryType === 'TAX'
-                                  ? `${(option as TaxTemplate).rate}%`
+                                  ? (option as TaxTemplate).rateType ===
+                                    'AMOUNT'
+                                    ? `₹${(option as TaxTemplate).rate}`
+                                    : `${(option as TaxTemplate).rate}%`
                                   : (option as DiscountTemplate).type ===
                                       'PERCENT'
                                     ? `${(option as DiscountTemplate).value}%`

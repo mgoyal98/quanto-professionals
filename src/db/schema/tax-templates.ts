@@ -5,6 +5,7 @@ export const taxTemplatesTable = sqliteTable('tax_templates', {
   id: integer().primaryKey({ autoIncrement: true }),
   name: text().notNull(),
   rate: real().notNull(),
+  rateType: text().notNull().default('PERCENT'), // 'PERCENT' | 'AMOUNT' - Only applicable for CUSTOM taxes
   taxType: text().notNull().default('GST'), // 'GST' | 'CESS' | 'CUSTOM'
   description: text(),
   isDefault: integer({ mode: 'boolean' }).notNull().default(false),

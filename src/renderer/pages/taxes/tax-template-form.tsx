@@ -26,8 +26,10 @@ import {
   TAX_TYPES,
   TAX_TYPE_LABELS,
   TAX_TYPE_DESCRIPTIONS,
+  TAX_RATE_TYPES,
+  TAX_RATE_TYPE_LABELS,
 } from '@/common/tax-template';
-import { TaxTemplate, TaxType } from '@shared/tax-template';
+import { TaxTemplate, TaxType, TaxRateType } from '@shared/tax-template';
 import { useNotification } from '@/providers/notification';
 
 type FormMode = 'create' | 'edit';
@@ -43,6 +45,7 @@ interface TaxTemplateFormProps {
 const defaultValues: TaxTemplateFormValues = {
   name: '',
   rate: 0,
+  rateType: 'PERCENT',
   taxType: 'GST',
   description: '',
   isDefault: false,
@@ -75,6 +78,7 @@ export default function TaxTemplateForm({
   // Watch form values for preview
   const watchedTaxType = watch('taxType');
   const watchedRate = watch('rate');
+  const watchedRateType = watch('rateType');
 
   // Fetch template data when editing
   useEffect(() => {
@@ -96,6 +100,7 @@ export default function TaxTemplateForm({
           reset({
             name: template.name,
             rate: template.rate,
+            rateType: (template.rateType as TaxRateType) || 'PERCENT',
             taxType: template.taxType as TaxType,
             description: template.description || '',
             isDefault: template.isDefault,
@@ -234,12 +239,40 @@ export default function TaxTemplateForm({
               )}
             />
 
+            {/* Rate Type selector - only for CUSTOM taxes */}
+            {watchedTaxType === 'CUSTOM' && (
+              <Controller
+                name='rateType'
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth error={Boolean(errors.rateType)}>
+                    <InputLabel>Rate Type</InputLabel>
+                    <Select {...field} label='Rate Type'>
+                      {TAX_RATE_TYPES.map((type) => (
+                        <MenuItem key={type} value={type}>
+                          {TAX_RATE_TYPE_LABELS[type]}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <FormHelperText>
+                      {errors.rateType?.message ||
+                        'Choose whether to apply as percentage or fixed amount'}
+                    </FormHelperText>
+                  </FormControl>
+                )}
+              />
+            )}
+
             <Controller
               name='rate'
               control={control}
               render={({ field }) => (
                 <TextField
-                  label='Tax Rate (%)'
+                  label={
+                    watchedTaxType === 'CUSTOM' && watchedRateType === 'AMOUNT'
+                      ? 'Tax Amount (₹)'
+                      : 'Tax Rate (%)'
+                  }
                   type='number'
                   {...field}
                   onChange={(e) =>
@@ -247,12 +280,19 @@ export default function TaxTemplateForm({
                   }
                   error={Boolean(errors.rate)}
                   helperText={
-                    errors.rate?.message || 'Tax rate as a percentage (0-100)'
+                    errors.rate?.message ||
+                    (watchedTaxType === 'CUSTOM' && watchedRateType === 'AMOUNT'
+                      ? 'Fixed tax amount to be applied'
+                      : 'Tax rate as a percentage (0-100)')
                   }
                   required
                   fullWidth
                   slotProps={{
-                    htmlInput: { min: 0, max: 100, step: 0.01 },
+                    htmlInput: {
+                      min: 0,
+                      max: watchedRateType === 'PERCENT' ? 100 : undefined,
+                      step: 0.01,
+                    },
                   }}
                 />
               )}

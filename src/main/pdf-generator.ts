@@ -157,4 +157,3 @@ export async function printHtml(html: string): Promise<boolean> {
     return false;
   }
 }
-

@@ -4,10 +4,12 @@ import { InferSelectModel } from 'drizzle-orm';
 export type TaxTemplate = InferSelectModel<typeof taxTemplatesTable>;
 
 export type TaxType = 'GST' | 'CESS' | 'CUSTOM';
+export type TaxRateType = 'PERCENT' | 'AMOUNT';
 
 export interface CreateTaxTemplateRequest {
   name: string;
   rate: number;
+  rateType?: TaxRateType; // Only applicable for CUSTOM taxes, defaults to 'PERCENT'
   taxType?: TaxType;
   description?: string;
   isDefault?: boolean;
@@ -17,6 +19,7 @@ export interface UpdateTaxTemplateRequest {
   id: number;
   name: string;
   rate: number;
+  rateType?: TaxRateType; // Only applicable for CUSTOM taxes
   taxType?: TaxType;
   description?: string;
   isDefault?: boolean;
