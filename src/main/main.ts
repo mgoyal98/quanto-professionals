@@ -11,6 +11,7 @@ import { registerPaymentMethodHandlers } from './payment-method';
 import { registerInvoiceHandlers } from './invoice';
 import { registerPaymentHandlers } from './payment';
 import { registerInvoiceFormatHandlers } from './invoice-format';
+import { registerReportHandlers } from './report';
 import { updateElectronApp } from 'update-electron-app';
 
 if (!started && !process.argv.includes('--squirrel-firstrun')) {
@@ -133,3 +134,4 @@ registerPaymentMethodHandlers();
 registerInvoiceHandlers();
 registerPaymentHandlers();
 registerInvoiceFormatHandlers();
+registerReportHandlers();
