@@ -20,6 +20,7 @@ import InvoicePrintView from './pages/invoices/invoice-print';
 import PaymentList from './pages/payments/payment-list';
 import InvoiceFormatSettings from './pages/settings/invoice-format-settings';
 import InvoiceFormatForm from './pages/settings/invoice-format-form';
+import ReportsPage from './pages/reports/reports-page';
 
 export default function AppRoutes() {
   return (
@@ -50,6 +51,9 @@ export default function AppRoutes() {
 
         {/* Payment routes */}
         <Route path='payments' element={<PaymentList />} />
+
+        {/* Reports routes */}
+        <Route path='reports' element={<ReportsPage />} />
 
         {/* Invoice Format routes (top-level) */}
         <Route path='formats' element={<InvoiceFormatSettings />} />

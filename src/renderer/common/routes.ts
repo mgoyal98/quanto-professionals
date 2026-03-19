@@ -19,6 +19,8 @@ export enum Routes {
 
   Payments = '/payments',
 
+  Reports = '/reports',
+
   // Invoice Formats (top-level)
   InvoiceFormats = '/formats',
   InvoiceFormatNew = '/formats/new',
