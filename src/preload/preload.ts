@@ -58,7 +58,18 @@ import {
   InvoiceIpcChannel,
   PaymentIpcChannel,
   InvoiceFormatIpcChannel,
+  ReportIpcChannel,
 } from '@shared/ipc';
+import {
+  InvoiceReportParams,
+  InvoiceReportResponse,
+  PaymentReportParams,
+  PaymentReportResponse,
+  GstReportParams,
+  GstReportResponse,
+  ExportReportParams,
+  ExportReportResponse,
+} from '@shared/report';
 import {
   PaymentListParams,
   PaymentListResponse,
@@ -518,6 +529,20 @@ const invoiceFormatApi = {
     ) as Promise<boolean>,
 };
 
+const reportApi = {
+  getInvoiceReport: (params: InvoiceReportParams) =>
+    ipcRenderer.invoke(ReportIpcChannel.GetInvoiceReport, params) as Promise<InvoiceReportResponse>,
+
+  getPaymentReport: (params: PaymentReportParams) =>
+    ipcRenderer.invoke(ReportIpcChannel.GetPaymentReport, params) as Promise<PaymentReportResponse>,
+
+  getGstReport: (params: GstReportParams) =>
+    ipcRenderer.invoke(ReportIpcChannel.GetGstReport, params) as Promise<GstReportResponse>,
+
+  exportReport: (params: ExportReportParams) =>
+    ipcRenderer.invoke(ReportIpcChannel.Export, params) as Promise<ExportReportResponse>,
+};
+
 contextBridge.exposeInMainWorld('companyApi', companyApi);
 contextBridge.exposeInMainWorld('customerApi', customerApi);
 contextBridge.exposeInMainWorld('invoiceSeriesApi', invoiceSeriesApi);
@@ -528,3 +553,4 @@ contextBridge.exposeInMainWorld('paymentMethodApi', paymentMethodApi);
 contextBridge.exposeInMainWorld('invoiceApi', invoiceApi);
 contextBridge.exposeInMainWorld('paymentApi', paymentApi);
 contextBridge.exposeInMainWorld('invoiceFormatApi', invoiceFormatApi);
+contextBridge.exposeInMainWorld('reportApi', reportApi);

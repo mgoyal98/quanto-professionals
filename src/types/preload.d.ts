@@ -61,6 +61,16 @@ import {
   GeneratePdfRequest,
   GeneratePdfResponse,
 } from '@shared/invoice-format';
+import {
+  InvoiceReportParams,
+  InvoiceReportResponse,
+  PaymentReportParams,
+  PaymentReportResponse,
+  GstReportParams,
+  GstReportResponse,
+  ExportReportParams,
+  ExportReportResponse,
+} from '@shared/report';
 
 declare global {
   interface Window {
@@ -191,6 +201,12 @@ declare global {
       generatePdf(payload: GeneratePdfRequest): Promise<GeneratePdfResponse>;
       printInvoice(invoiceId: number, formatId?: number): Promise<boolean>;
       initializeDefaults(): Promise<boolean>;
+    };
+    reportApi?: {
+      getInvoiceReport(params: InvoiceReportParams): Promise<InvoiceReportResponse>;
+      getPaymentReport(params: PaymentReportParams): Promise<PaymentReportResponse>;
+      getGstReport(params: GstReportParams): Promise<GstReportResponse>;
+      exportReport(params: ExportReportParams): Promise<ExportReportResponse>;
     };
   }
 }
