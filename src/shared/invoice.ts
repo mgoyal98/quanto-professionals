@@ -258,6 +258,11 @@ export interface InvoiceListResponse {
   offset: number;
 }
 
+export interface InvoiceDashboardStats {
+  unpaidAmount: number;
+  unpaidCount: number;
+}
+
 // ============================================
 // Calculation Types
 // ============================================

@@ -87,6 +87,7 @@ export enum InvoiceIpcChannel {
   RecordPayment = 'invoice:record-payment',
   DeletePayment = 'invoice:delete-payment',
   GetPayments = 'invoice:get-payments',
+  DashboardStats = 'invoice:dashboard-stats',
 }
 
 export enum PaymentIpcChannel {

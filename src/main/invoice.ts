@@ -22,6 +22,7 @@ import {
   InvoiceWithDetails,
   InvoiceItemWithDetails,
   InvoicePaymentWithDetails,
+  InvoiceDashboardStats,
   calculateInvoiceItem,
   calculateInvoiceTotalsWithEntries,
   CalculatedInvoiceItem,
@@ -760,6 +761,27 @@ function listInvoices(params: InvoiceListParams = {}): InvoiceListResponse {
   return { invoices: invoicesWithDetails, total, limit, offset };
 }
 
+function getDashboardStats(): InvoiceDashboardStats {
+  const db = getActiveDb();
+  const result = db
+    .select({
+      unpaidAmount: sql<number>`coalesce(sum(${invoicesTable.dueAmount}), 0)`,
+      unpaidCount: sql<number>`count(*)`,
+    })
+    .from(invoicesTable)
+    .where(
+      and(
+        eq(invoicesTable.isArchived, false),
+        inArray(invoicesTable.status, ['UNPAID', 'PARTIALLY_PAID'])
+      )
+    )
+    .get();
+  return {
+    unpaidAmount: result?.unpaidAmount ?? 0,
+    unpaidCount: result?.unpaidCount ?? 0,
+  };
+}
+
 function updateInvoiceStatus(
   id: number,
   data: Omit<UpdateInvoiceStatusRequest, 'id'>
@@ -946,6 +968,14 @@ export function registerInvoiceHandlers() {
       }
     }
   );
+
+  ipcMain.handle(InvoiceIpcChannel.DashboardStats, async () => {
+    try {
+      return getDashboardStats();
+    } catch (error) {
+      throw new Error(formatIpcError(error));
+    }
+  });
 
   ipcMain.handle(
     InvoiceIpcChannel.List,

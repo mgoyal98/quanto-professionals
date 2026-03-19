@@ -73,34 +73,26 @@ export default function Dashboard() {
 
     try {
       // Fetch all data in parallel
-      const [invoicesResult, customersResult, itemsResult] = await Promise.all([
-        window.invoiceApi?.listInvoices({ limit: 5, isArchived: false }),
-        window.customerApi?.listCustomers(),
-        window.itemApi?.listItems({ limit: 1 }), // Just need the total count
-      ]);
+      const [invoicesResult, customersResult, itemsResult, dashboardStats] =
+        await Promise.all([
+          window.invoiceApi?.listInvoices({ limit: 5, isArchived: false }),
+          window.customerApi?.listCustomers(),
+          window.itemApi?.listItems({ limit: 1 }), // Just need the total count
+          window.invoiceApi?.getDashboardStats(),
+        ]);
 
-      const invoices = invoicesResult?.invoices ?? [];
       const customers = customersResult ?? [];
 
-      // Calculate unpaid amount from recent invoices (approximation for alert)
-      const unpaidAmount = invoices.reduce(
-        (sum, inv) => sum + inv.dueAmount,
-        0
-      );
-      const unpaidInvoices = invoices.filter(
-        (inv) => inv.status === 'UNPAID' || inv.status === 'PARTIALLY_PAID'
-      ).length;
-
       setStats({
-        totalInvoices: invoicesResult?.total ?? 0, // Use total from API response
+        totalInvoices: invoicesResult?.total ?? 0,
         totalCustomers: customers.length,
-        totalItems: itemsResult?.total ?? 0, // Use total from API response
-        unpaidAmount,
-        unpaidInvoices,
+        totalItems: itemsResult?.total ?? 0,
+        unpaidAmount: dashboardStats?.unpaidAmount ?? 0,
+        unpaidInvoices: dashboardStats?.unpaidCount ?? 0,
       });
 
       // Recent invoices for display
-      setRecentInvoices(invoices);
+      setRecentInvoices(invoicesResult?.invoices ?? []);
     } catch (err) {
       setError(formatIpcError(err));
     } finally {

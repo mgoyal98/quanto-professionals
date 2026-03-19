@@ -45,6 +45,7 @@ import {
   InvoiceListParams,
   InvoiceListResponse,
   InvoiceWithDetails,
+  InvoiceDashboardStats,
 } from '@shared/invoice';
 import {
   PaymentListParams,
@@ -164,6 +165,7 @@ declare global {
       restoreInvoice(id: number, invoiceNumber: string): Promise<boolean>;
       recordPayment(payload: RecordPaymentRequest): Promise<InvoiceWithDetails>;
       deletePayment(paymentId: number): Promise<InvoiceWithDetails | null>;
+      getDashboardStats(): Promise<InvoiceDashboardStats>;
     };
     paymentApi?: {
       listPayments(params?: PaymentListParams): Promise<PaymentListResponse>;

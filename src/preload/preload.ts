@@ -45,6 +45,7 @@ import {
   InvoiceListParams,
   InvoiceListResponse,
   InvoiceWithDetails,
+  InvoiceDashboardStats,
 } from '@shared/invoice';
 import {
   CompanyIpcChannel,
@@ -423,6 +424,11 @@ const invoiceApi = {
       InvoiceIpcChannel.DeletePayment,
       paymentId
     ) as Promise<InvoiceWithDetails | null>,
+
+  getDashboardStats: () =>
+    ipcRenderer.invoke(
+      InvoiceIpcChannel.DashboardStats
+    ) as Promise<InvoiceDashboardStats>,
 };
 
 const paymentApi = {
