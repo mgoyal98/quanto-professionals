@@ -48,7 +48,7 @@ import { useNotification } from '@/providers/notification';
 import { Routes } from '@/common/routes';
 import CancelInvoiceDialog from '@/components/cancel-invoice-dialog';
 
-type InvoicesTab = 'active' | 'archived';
+type InvoicesTab = 'active' | 'unpaid' | 'archived';
 const DEFAULT_PAGE_SIZE = 10;
 
 export default function InvoiceList() {
@@ -59,10 +59,14 @@ export default function InvoiceList() {
   const [activeInvoices, setActiveInvoices] = useState<InvoiceWithDetails[]>(
     []
   );
+  const [unpaidInvoices, setUnpaidInvoices] = useState<InvoiceWithDetails[]>(
+    []
+  );
   const [archivedInvoices, setArchivedInvoices] = useState<
     InvoiceWithDetails[]
   >([]);
   const [activeTotalCount, setActiveTotalCount] = useState(0);
+  const [unpaidTotalCount, setUnpaidTotalCount] = useState(0);
   const [archivedTotalCount, setArchivedTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +77,7 @@ export default function InvoiceList() {
 
   // Pagination state
   const [activePage, setActivePage] = useState(0);
+  const [unpaidPage, setUnpaidPage] = useState(0);
   const [archivedPage, setArchivedPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
@@ -80,6 +85,7 @@ export default function InvoiceList() {
     async (options?: {
       search?: string;
       activePageNum?: number;
+      unpaidPageNum?: number;
       archivedPageNum?: number;
       pageSizeNum?: number;
     }) => {
@@ -92,16 +98,24 @@ export default function InvoiceList() {
       // Use searchQuery from state if not explicitly passed
       const search = options?.search !== undefined ? options.search : (searchQuery || undefined);
       const currentActivePageNum = options?.activePageNum ?? activePage;
+      const currentUnpaidPageNum = options?.unpaidPageNum ?? unpaidPage;
       const currentArchivedPageNum = options?.archivedPageNum ?? archivedPage;
       const currentPageSize = options?.pageSizeNum ?? pageSize;
 
       try {
-        const [activeResult, archivedResult] = await Promise.all([
+        const [activeResult, unpaidResult, archivedResult] = await Promise.all([
           window.invoiceApi.listInvoices({
             search,
             isArchived: false,
             limit: currentPageSize,
             offset: currentActivePageNum * currentPageSize,
+          }),
+          window.invoiceApi.listInvoices({
+            search,
+            isArchived: false,
+            statuses: ['UNPAID', 'PARTIALLY_PAID'],
+            limit: currentPageSize,
+            offset: currentUnpaidPageNum * currentPageSize,
           }),
           window.invoiceApi.listInvoices({
             search,
@@ -111,8 +125,10 @@ export default function InvoiceList() {
           }),
         ]);
         setActiveInvoices(activeResult.invoices);
+        setUnpaidInvoices(unpaidResult.invoices);
         setArchivedInvoices(archivedResult.invoices);
         setActiveTotalCount(activeResult.total);
+        setUnpaidTotalCount(unpaidResult.total);
         setArchivedTotalCount(archivedResult.total);
       } catch (err) {
         setError(formatIpcError(err));
@@ -120,7 +136,7 @@ export default function InvoiceList() {
         setLoading(false);
       }
     },
-    [activePage, archivedPage, pageSize, searchQuery]
+    [activePage, unpaidPage, archivedPage, pageSize, searchQuery]
   );
 
   // Initial load only
@@ -132,10 +148,12 @@ export default function InvoiceList() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setActivePage(0);
+      setUnpaidPage(0);
       setArchivedPage(0);
       void loadInvoices({
         search: searchQuery || undefined,
         activePageNum: 0,
+        unpaidPageNum: 0,
         archivedPageNum: 0,
       });
     }, 300);
@@ -203,16 +221,13 @@ export default function InvoiceList() {
   const handlePageChange = (_event: unknown, newPage: number) => {
     if (activeTab === 'active') {
       setActivePage(newPage);
-      void loadInvoices({
-        search: searchQuery || undefined,
-        activePageNum: newPage,
-      });
+      void loadInvoices({ search: searchQuery || undefined, activePageNum: newPage });
+    } else if (activeTab === 'unpaid') {
+      setUnpaidPage(newPage);
+      void loadInvoices({ search: searchQuery || undefined, unpaidPageNum: newPage });
     } else {
       setArchivedPage(newPage);
-      void loadInvoices({
-        search: searchQuery || undefined,
-        archivedPageNum: newPage,
-      });
+      void loadInvoices({ search: searchQuery || undefined, archivedPageNum: newPage });
     }
   };
 
@@ -220,10 +235,12 @@ export default function InvoiceList() {
     const newPageSize = parseInt(event.target.value, 10);
     setPageSize(newPageSize);
     setActivePage(0);
+    setUnpaidPage(0);
     setArchivedPage(0);
     void loadInvoices({
       search: searchQuery || undefined,
       activePageNum: 0,
+      unpaidPageNum: 0,
       archivedPageNum: 0,
       pageSizeNum: newPageSize,
     });
@@ -252,15 +269,23 @@ export default function InvoiceList() {
   };
 
   const currentInvoices =
-    activeTab === 'active' ? activeInvoices : archivedInvoices;
+    activeTab === 'active' ? activeInvoices
+    : activeTab === 'unpaid' ? unpaidInvoices
+    : archivedInvoices;
   const currentTotalCount =
-    activeTab === 'active' ? activeTotalCount : archivedTotalCount;
-  const currentPage = activeTab === 'active' ? activePage : archivedPage;
+    activeTab === 'active' ? activeTotalCount
+    : activeTab === 'unpaid' ? unpaidTotalCount
+    : archivedTotalCount;
+  const currentPage =
+    activeTab === 'active' ? activePage
+    : activeTab === 'unpaid' ? unpaidPage
+    : archivedPage;
 
   const getEmptyMessage = () => {
     if (searchQuery) {
       return `No invoices found matching "${searchQuery}".`;
     }
+    if (activeTab === 'unpaid') return 'No unpaid invoices. All caught up!';
     return activeTab === 'active'
       ? 'No invoices found. Create your first invoice to get started.'
       : 'No archived invoices. Invoices you archive will appear here.';
@@ -338,6 +363,11 @@ export default function InvoiceList() {
               <Tab
                 label={`Active (${activeTotalCount})`}
                 value='active'
+                sx={{ minWidth: 100 }}
+              />
+              <Tab
+                label={`Unpaid (${unpaidTotalCount})`}
+                value='unpaid'
                 sx={{ minWidth: 100 }}
               />
               <Tab
@@ -459,7 +489,7 @@ export default function InvoiceList() {
                           spacing={0.5}
                           justifyContent='flex-end'
                         >
-                          {activeTab === 'active' ? (
+                          {activeTab !== 'archived' ? (
                             <>
                               <Tooltip title='View'>
                                 <IconButton

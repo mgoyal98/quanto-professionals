@@ -243,6 +243,7 @@ export interface RecordPaymentRequest {
 export interface InvoiceListParams {
   search?: string;
   status?: InvoiceStatus;
+  statuses?: InvoiceStatus[];
   customerId?: number;
   dateFrom?: Date;
   dateTo?: Date;

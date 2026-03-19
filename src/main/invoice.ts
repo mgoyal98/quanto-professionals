@@ -697,6 +697,7 @@ function listInvoices(params: InvoiceListParams = {}): InvoiceListResponse {
   const {
     search,
     status,
+    statuses,
     customerId,
     dateFrom,
     dateTo,
@@ -707,7 +708,11 @@ function listInvoices(params: InvoiceListParams = {}): InvoiceListResponse {
 
   const conditions = [eq(invoicesTable.isArchived, isArchived)];
 
-  if (status) conditions.push(eq(invoicesTable.status, status));
+  if (statuses && statuses.length > 0) {
+    conditions.push(inArray(invoicesTable.status, statuses));
+  } else if (status) {
+    conditions.push(eq(invoicesTable.status, status));
+  }
   if (customerId) conditions.push(eq(invoicesTable.customerId, customerId));
   if (dateFrom) conditions.push(gte(invoicesTable.invoiceDate, dateFrom));
   if (dateTo) conditions.push(lte(invoicesTable.invoiceDate, dateTo));
