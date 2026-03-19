@@ -112,6 +112,13 @@ export enum InvoiceFormatIpcChannel {
   InitializeDefaults = 'invoice-format:initialize-defaults',
 }
 
+export enum ReportIpcChannel {
+  GetInvoiceReport = 'report:invoice',
+  GetPaymentReport = 'report:payment',
+  GetGstReport = 'report:gst',
+  Export = 'report:export',
+}
+
 export function formatIpcError(error: unknown) {
   if (error instanceof Error) {
     return error.message;
